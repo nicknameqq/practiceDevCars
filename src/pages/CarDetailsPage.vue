@@ -33,30 +33,54 @@
 
           <div class="divider"></div>
 
-          <div class="characteristics">
+            <div class="characteristics">
 
             <div class="characteristic">
-              <span>Тип кузова</span>
-              <strong>{{ car.bodyType }}</strong>
+                <span>Тип кузова</span>
+                <strong>{{ car.bodyType }}</strong>
             </div>
 
             <div class="characteristic">
-              <span>Стоимость</span>
-              <strong>{{ car.price }} ₴ / день</strong>
+                <span>Год выпуска</span>
+                <strong>{{ car.year }}</strong>
             </div>
 
             <div class="characteristic">
-              <span>Статус</span>
-              <strong>Доступен</strong>
+                <span>Коробка передач</span>
+                <strong>{{ car.transmission }}</strong>
             </div>
 
-          </div>
+            <div class="characteristic">
+                <span>Топливо</span>
+                <strong>{{ car.fuel }}</strong>
+            </div>
 
-          <q-btn
-            label="Забронировать"
-            unelevated
-            class="booking-button"
-          />
+            <div class="characteristic">
+                <span>Количество мест</span>
+                <strong>{{ car.seats }}</strong>
+            </div>
+
+            <div class="characteristic">
+                <span>Стоимость</span>
+                <strong>{{ car.price }} ₴ / день</strong>
+            </div>
+
+            <div class="characteristic">
+                <span>Статус</span>
+                <strong>
+                {{ car.available ? 'Доступен' : 'Недоступен' }}
+                </strong>
+            </div>
+
+            </div>
+
+            <q-btn
+                :label="car.available ? 'Забронировать' : 'Автомобиль недоступен'"
+                unelevated
+                class="booking-button"
+                :disable="!car.available"
+                :to="`/bookings?carId=${car.id}`"
+            />
 
         </div>
 
@@ -142,6 +166,11 @@ const car = computed(() => {
   height: 1px;
   margin: 30px 0;
   background: rgba(128, 128, 128, 0.25);
+}
+
+.characteristic {
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.15);
 }
 
 .characteristics {
