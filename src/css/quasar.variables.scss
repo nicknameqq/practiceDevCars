@@ -12,14 +12,16 @@
 // to match your app's branding.
 // Tip: Use the "Theme Builder" on Quasar's documentation website.
 
-$primary: #1976d2;
-$secondary: #26a69a;
-$accent: #9c27b0;
+// Базовые Quasar-переменные — влияют на компоненты (QBtn, QCard и т.д.)
+$primary: #d97757;
+$secondary: #8b8478;
+$accent: #d97757;
 
-$dark: #1d1d1d;
-$dark-page: #121212;
+$positive: #7a9b76;
+$negative: #c9564f;
+$info: #6b8fa3;
+$warning: #d4a24c;
 
-$positive: #21ba45;
-$negative: #c10015;
-$info: #31ccec;
-$warning: #f2c037;
+// Фон/поверхности для встроенного dark-режима Quasar
+$dark: #1e1f22;
+$dark-page: #1e1f22;

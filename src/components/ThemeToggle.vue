@@ -1,16 +1,20 @@
 <script setup>
-import { Dark } from 'quasar'
+import { useQuasar } from 'quasar'
 
-function toggleDarkMode() {
-  Dark.toggle()
+const $q = useQuasar()
+
+function toggleDarkMode () {
+  $q.dark.toggle()
+  localStorage.setItem('theme', $q.dark.isActive ? 'dark' : 'light')
 }
 </script>
 
 <template>
   <q-btn
-    :icon="Dark.isActive ? 'light_mode' : 'dark_mode'"
+    :icon="$q.dark.isActive ? 'light_mode' : 'dark_mode'"
     round
     unelevated
+    flat
     @click="toggleDarkMode"
   />
 </template>

@@ -44,14 +44,13 @@
               <template v-slot:append>
                 <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                   <q-date
-                     v-model="startDate"
-                      mask="YYYY-MM-DD"
-                      :options="isStartDateAvailable"
-                      :events="occupiedDates"
-                      event-color="red-4"
-
-                    />
+                  <q-date
+                    v-model="startDate"
+                    mask="YYYY-MM-DD"
+                    :options="isStartDateAvailable"
+                    :events="occupiedDates"
+                    event-color="red-4"
+                  />
                   </q-popup-proxy>
                 </q-icon>
               </template>
@@ -194,14 +193,25 @@ function normalizeDate(date) {
 }
 
 function isStartDateAvailable(date) {
+
   const current = normalizeDate(date)
 
-  if (current < today) return false
+  // Прошедшие даты
+  if (current < today) {
+    return false
+  }
 
-  if (!selectedCar.value) return true
+  if (!selectedCar.value) {
+    return true
+  }
 
+  // Нельзя начинать аренду в день,
+  // когда автомобиль уже занят
   return !bookings.some(booking => {
-    if (booking.carId !== selectedCar.value.id) return false
+
+    if (booking.carId !== selectedCar.value.id) {
+      return false
+    }
 
     return (
       current >= booking.startDate &&
@@ -210,13 +220,16 @@ function isStartDateAvailable(date) {
   })
 }
 
+
 function isEndDateAvailable(date) {
+
   const current = normalizeDate(date)
 
   if (!startDate.value) {
     return false
   }
 
+  // Окончание должно быть позже начала
   if (current <= startDate.value) {
     return false
   }
@@ -225,12 +238,14 @@ function isEndDateAvailable(date) {
     return true
   }
 
+  // Проверяем, пересекается ли выбранный диапазон
+  // с существующей бронью
   return !bookings.some(booking => {
+
     if (booking.carId !== selectedCar.value.id) {
       return false
     }
 
-    // Проверяем, пересекается ли весь диапазон
     return (
       startDate.value < booking.endDate &&
       current > booking.startDate
@@ -239,6 +254,26 @@ function isEndDateAvailable(date) {
 }
 
 // ===== Проверки =====
+
+const hasDateConflict = computed(() => {
+
+  if (!selectedCar.value || !datesValid.value) {
+    return false
+  }
+
+  return bookings.some(booking => {
+
+    if (booking.carId !== selectedCar.value.id) {
+      return false
+    }
+
+    return (
+      startDate.value < booking.endDate &&
+      endDate.value > booking.startDate
+    )
+  })
+})
+
 
 const datesValid = computed(() => {
   if (!startDate.value || !endDate.value) return false
@@ -265,7 +300,8 @@ const canBook = computed(() => {
   return (
     selectedCar.value &&
     datesValid.value &&
-    rentalDays.value > 0
+    rentalDays.value > 0 &&
+    !hasDateConflict.value
   )
 })
 
@@ -287,7 +323,21 @@ function createBooking() {
 </script>
 
 <style scoped>
+.booking-card :deep(.q-field__control),
+.booking-card :deep(.q-field__native),
+.booking-card :deep(.q-field__input) {
+  color: var(--q-text);
+}
 
+.booking-card :deep(.q-field__label) {
+  color: var(--q-text);
+  opacity: 0.6;
+}
+
+.booking-card :deep(.q-field__marginal) {
+  color: var(--q-text);
+  opacity: 0.7;
+}
 
 
 .bookings-page {
@@ -338,6 +388,11 @@ h1 {
 
 .booking-section {
   flex: 1;
+}
+
+:global(.q-date) {
+  background: var(--q-card);
+  color: var(--q-text);
 }
 
 .section-title {

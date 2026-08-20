@@ -107,9 +107,10 @@ const car = computed(() => {
 </script>
 
 <style scoped>
-.car-details-page {
-  background: var(--q-background);
-  min-height: 100%;
+.car-details-card {
+  background: var(--q-card);
+  border: 1px solid var(--q-border);
+  box-shadow: 0 4px 20px var(--q-shadow);
 }
 
 .page-content {
