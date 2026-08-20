@@ -10,7 +10,8 @@ const cars = [
     transmission: 'Автомат',
     fuel: 'Бензин',
     seats: 5,
-    available: true
+    status: 'available'
+
   },
 
   {
@@ -24,7 +25,9 @@ const cars = [
     transmission: 'Автомат',
     fuel: 'Бензин',
     seats: 5,
-    available: true
+    //available, booked, uavailable
+    status: 'available'
+
   },
 
   {
@@ -38,8 +41,11 @@ const cars = [
     transmission: 'Автомат',
     fuel: 'Гибрид',
     seats: 5,
-    available: true
+    status: 'unavailable'
   }
 ]
+
+
+
 
 export default cars

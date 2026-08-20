@@ -129,7 +129,13 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import cars from 'src/data/cars.js'
-import bookings from 'src/data/bookings.js'
+
+import {
+  isDateBooked,
+  isDateRangeBooked,
+  getOccupiedDates,
+  normalizeDate
+} from 'src/utils/bookingUtils'
 
 const route = useRoute()
 
@@ -148,34 +154,8 @@ const occupiedDates = computed(() => {
     return []
   }
 
-  const dates = []
-
-  bookings.forEach(booking => {
-
-    if (booking.carId !== selectedCar.value.id) {
-      return
-    }
-
-    const start = new Date(booking.startDate)
-    const end = new Date(booking.endDate)
-
-    const current = new Date(start)
-
-    while (current < end) {
-
-      const year = current.getFullYear()
-      const month = String(current.getMonth() + 1).padStart(2, '0')
-      const day = String(current.getDate()).padStart(2, '0')
-
-      dates.push(`${year}/${month}/${day}`)
-
-      current.setDate(current.getDate() + 1)
-    }
-  })
-
-  return dates
+  return getOccupiedDates(selectedCar.value.id)
 })
-
 
 const carOptions = cars.map(car => ({
   label: `${car.brand} ${car.model} — ${car.price} ₴ / день`,
@@ -186,62 +166,42 @@ const selectedCar = computed(() =>
   cars.find(car => car.id === selectedCarId.value)
 )
 
-// ===== Доступные даты =====
-
-function normalizeDate(date) {
-  return date.replace(/\//g, '-')
-}
-
-// ===== Ближайшая следующая бронь для машины =====
-
-const nextBookingStart = computed(() => {
-  if (!selectedCar.value || !startDate.value) {
-    return null
-  }
-
-  const upcoming = bookings
-    .filter(b =>
-      b.carId === selectedCar.value.id &&
-      b.startDate > startDate.value
-    )
-    .map(b => b.startDate)
-    .sort()
-
-  return upcoming.length ? upcoming[0] : null
-})
 
 // ===== Доступные даты =====
 
 function isStartDateAvailable(date) {
+
   const current = normalizeDate(date)
 
+  // Нельзя выбрать прошедшую дату
   if (current < today) {
     return false
   }
 
+  // Если автомобиль не выбран —
+  // разрешаем выбирать дату
   if (!selectedCar.value) {
     return true
   }
 
-  return !bookings.some(booking => {
-    if (booking.carId !== selectedCar.value.id) {
-      return false
-    }
-
-    return (
-      current >= booking.startDate &&
-      current < booking.endDate
-    )
-  })
+  // Нельзя начать аренду,
+  // когда автомобиль уже забронирован
+  return !isDateBooked(
+    selectedCar.value.id,
+    current
+  )
 }
 
 function isEndDateAvailable(date) {
+
   const current = normalizeDate(date)
 
+  // Сначала нужно выбрать дату начала
   if (!startDate.value) {
     return false
   }
 
+  // Дата окончания должна быть позже начала
   if (current <= startDate.value) {
     return false
   }
@@ -250,32 +210,27 @@ function isEndDateAvailable(date) {
     return true
   }
 
-  // Разрешаем endDate == nextBookingStart (выезд день в день с заездом следующего)
-  // Запрещаем только СТРОГОЕ пересечение
-  if (nextBookingStart.value && current > nextBookingStart.value) {
-    return false
-  }
-
-  return true
+  // Проверяем весь диапазон
+  return !isDateRangeBooked(
+    selectedCar.value.id,
+    startDate.value,
+    current
+  )
 }
 
 // ===== Проверки =====
 
 const hasDateConflict = computed(() => {
+
   if (!selectedCar.value || !datesValid.value) {
     return false
   }
 
-  return bookings.some(booking => {
-    if (booking.carId !== selectedCar.value.id) {
-      return false
-    }
-
-    return (
-      startDate.value < booking.endDate &&
-      endDate.value > booking.startDate
-    )
-  })
+  return isDateRangeBooked(
+    selectedCar.value.id,
+    startDate.value,
+    endDate.value
+  )
 })
 
 

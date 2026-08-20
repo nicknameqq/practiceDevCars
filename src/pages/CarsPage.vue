@@ -32,6 +32,8 @@
               {{ car.bodyType }}
             </div>
 
+              <CarStatus :status="getCarStatus(car)" />
+              
           </q-card-section>
 
           <q-card-section class="car-bottom">
@@ -60,7 +62,10 @@
 </template>
 
 <script setup>
+import { getCarStatus } from 'src/utils/carStatus.js'
 import cars from 'src/data/cars.js'
+import CarStatus from 'src/components/CarStatus.vue'
+
 </script>
 
 <style scoped>
@@ -68,6 +73,8 @@ import cars from 'src/data/cars.js'
   background: var(--q-background);
   min-height: 100%;
 }
+
+
 
 .page-content {
   padding: 40px;

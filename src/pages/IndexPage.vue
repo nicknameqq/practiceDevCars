@@ -97,12 +97,14 @@
           {{ car.brand }} {{ car.model }}
         </div>
 
-        <div class="car-body-type">
-          {{ car.bodyType }}
+        <div class="car-info-row">
+          <div class="car-body-type">
+            {{ car.bodyType }}
+          </div>
+          <CarStatus :status="getCarStatus(car)" />
         </div>
 
       </q-card-section>
-
       <q-card-section class="car-bottom">
 
         <div class="car-price">
@@ -132,7 +134,9 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { getCarStatus } from 'src/utils/carStatus.js'
 import cars from 'src/data/cars.js'
+import CarStatus from 'src/components/CarStatus.vue'
 
 
 const brand = ref(null)
@@ -346,6 +350,13 @@ h1 {
   font-size: 20px;
   font-weight: 700;
   color: var(--q-text);
+}
+
+.car-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .car-body-type {

@@ -67,19 +67,21 @@
 
             <div class="characteristic">
                 <span>Статус</span>
-                <strong>
-                {{ car.available ? 'Доступен' : 'Недоступен' }}
-                </strong>
+                  <CarStatus :status="getCarStatus(car)" />
             </div>
 
             </div>
 
-            <q-btn
-                :label="car.available ? 'Забронировать' : 'Автомобиль недоступен'"
-                unelevated
-                class="booking-button"
-                :disable="!car.available"
-                :to="`/bookings?carId=${car.id}`"
+          <q-btn
+              :label="getCarStatus(car) === 'available'
+                ? 'Забронировать'
+                : getCarStatus(car) === 'booked'
+                  ? 'Автомобиль забронирован'
+                  : 'Автомобиль недоступен'"
+              unelevated
+              class="booking-button"
+              :disable="getCarStatus(car) !== 'available'"
+              :to="`/bookings?carId=${car.id}`"
             />
 
         </div>
@@ -94,8 +96,9 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { getCarStatus } from 'src/utils/carStatus.js'
 import cars from 'src/data/cars.js'
-
+import CarStatus from 'src/components/CarStatus.vue'
 
 const route = useRoute()
 
@@ -104,9 +107,13 @@ const route = useRoute()
 const car = computed(() => {
   return cars.find(car => car.id === Number(route.params.id))
 })
+
+
 </script>
 
 <style scoped>
+
+
 .car-details-card {
   background: var(--q-card);
   border: 1px solid var(--q-border);
