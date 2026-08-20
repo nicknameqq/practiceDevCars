@@ -70,62 +70,25 @@
         </div>
 
       </div>
-        <div class="cars-section">
+          <div class="cars-section">
 
-          <div class="results-count">
-            Найдено автомобилей: {{ filteredCars.length }}
+            <div class="results-count">
+              Найдено автомобилей: {{ filteredCars.length }}
+            </div>
+
+            <h2>Доступные автомобили</h2>
+
+            <div class="cars-grid">
+
+              <CarCard
+                v-for="car in filteredCars"
+                :key="car.id"
+                :car="car"
+              />
+
+            </div>
+
           </div>
-
-          <h2>Доступные автомобили</h2>
-
-          <div class="cars-grid">
-
-    <q-card
-      v-for="car in filteredCars"
-      :key="car.id"
-      class="car-card"
-    >
-
-      <q-img
-        :src="car.image"
-        :ratio="16 / 9"
-      />
-
-      <q-card-section>
-
-        <div class="car-title">
-          {{ car.brand }} {{ car.model }}
-        </div>
-
-        <div class="car-info-row">
-          <div class="car-body-type">
-            {{ car.bodyType }}
-          </div>
-          <CarStatus :status="getCarStatus(car)" />
-        </div>
-
-      </q-card-section>
-      <q-card-section class="car-bottom">
-
-        <div class="car-price">
-          {{ car.price }} ₴
-          <span>/ день</span>
-        </div>
-
-      <q-btn
-        label="Подробнее"
-        unelevated
-        rounded
-        :to="`/cars/${car.id}`"
-      />
-
-      </q-card-section>
-
-    </q-card>
-
-  </div>
-
-</div>
 
     </div>
 
@@ -134,14 +97,13 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { getCarStatus } from 'src/utils/carStatus.js'
 import cars from 'src/data/cars.js'
-import CarStatus from 'src/components/CarStatus.vue'
-
+import CarCard from 'src/components/CarCard.vue'
 
 const brand = ref(null)
 const bodyType = ref(null)
 const maxPrice = ref(null)
+
 
 const appliedBrand = ref(null)
 const appliedBodyType = ref(null)
@@ -196,6 +158,7 @@ function resetFilters() {
   appliedBodyType.value = null
   appliedMaxPrice.value = null
 }
+
 </script>
 
 <style scoped>
@@ -338,52 +301,6 @@ h1 {
   gap: 24px;
 }
 
-.car-card {
-  border-radius: 16px;
-  overflow: hidden;
-
-  background: var(--q-card);
-  color: var(--q-text);
-}
-
-.car-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--q-text);
-}
-
-.car-info-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.car-body-type {
-  margin-top: 5px;
-  color: var(--q-text);
-  opacity: 0.65;
-}
-
-.car-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.car-price {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--q-text);
-}
-
-.car-price span {
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--q-text);
-  opacity: 0.65;
-}
-
 .results-count {
   margin: 0 0 8px;
   font-size: 16px;
@@ -463,4 +380,9 @@ h1 {
     width: 100%;
   }
 }
+
+
+
+
+
 </style>
