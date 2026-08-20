@@ -2,7 +2,7 @@ const bookings = [
   {
     id: 1,
     carId: 1,
-    startDate: '2026-08-20',
+    startDate: '2026-08-21',
     endDate: '2026-08-25'
   },
   {

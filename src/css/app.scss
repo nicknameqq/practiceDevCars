@@ -1,8 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
 
-// =====================================================
-// СВЕТЛАЯ ТЕМА (по умолчанию)
-// =====================================================
+/* =====================================================
+   СВЕТЛАЯ ТЕМА (по умолчанию)
+   ===================================================== */
+
 body,
 body.body--light {
   --q-background: #faf8f4;
@@ -22,9 +23,10 @@ body.body--light {
   --q-shadow: rgba(43, 42, 39, 0.08);
 }
 
-// =====================================================
-// ТЁМНАЯ ТЕМА
-// =====================================================
+/* =====================================================
+   ТЁМНАЯ ТЕМА
+   ===================================================== */
+
 body.body--dark {
   --q-background: #1e1f22;
   --q-card: #26272b;
@@ -43,52 +45,77 @@ body.body--dark {
   --q-shadow: rgba(0, 0, 0, 0.35);
 }
 
-// =====================================================
-// БАЗА
-// =====================================================
+/* =====================================================
+   БАЗА
+   ===================================================== */
+
 body {
   background: var(--q-background);
   color: var(--q-text);
-  transition: background-color 0.25s ease, color 0.25s ease;
+
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
-h1, h2, h3, h4, h5, h6 {
+/* Заголовки */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Nunito', sans-serif;
   font-weight: 800;
   letter-spacing: -0.3px;
 }
 
+/* Обычный текст */
+
 p {
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.6;
 }
+
+/* Кнопки */
 
 .q-btn {
   font-family: 'Nunito', sans-serif;
   font-weight: 700;
 }
 
-// =====================================================
-// КАРТОЧКИ / ПОВЕРХНОСТИ
-// =====================================================
+/* =====================================================
+   КАРТОЧКИ / ПОВЕРХНОСТИ
+   ===================================================== */
+
 .q-card,
 .surface {
   background: var(--q-card) !important;
   color: var(--q-text);
+
   border: 1px solid var(--q-border);
+
   box-shadow: 0 2px 10px var(--q-shadow);
 }
 
-// =====================================================
-// LAYOUT: HEADER / DRAWER / FOOTER
-// =====================================================
+/* =====================================================
+   LAYOUT: HEADER / DRAWER / FOOTER
+   ===================================================== */
+
 .q-drawer,
 .q-header,
 .q-footer {
   background: var(--q-card) !important;
   color: var(--q-text) !important;
+
   border-color: var(--q-border) !important;
 }
+
+/* Цвет текста элементов */
 
 .q-drawer .q-item,
 .q-drawer .q-item-label,
@@ -98,9 +125,27 @@ p {
   color: var(--q-text);
 }
 
+/* Боковая панель */
+
+.q-drawer .q-item,
+.q-drawer .q-item-label {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+}
+
+/* Заголовок в Header */
+
+.q-header .q-toolbar__title {
+  font-weight: 800;
+}
+
+/* Hover боковой панели */
+
 .q-drawer .q-item:hover {
   background: var(--q-hover);
 }
+
+/* Активная страница */
 
 .q-item.q-router-link--active,
 .q-item--active {
@@ -108,67 +153,112 @@ p {
   background: var(--q-accent-soft) !important;
 }
 
+/* Приглушённый текст */
+
 .text-muted {
   color: var(--q-text-muted) !important;
 }
 
-// =====================================================
-// ПОЛЯ ВВОДА (q-select / q-input) — глобально
-// =====================================================
-.q-field__control,
+/* =====================================================
+   ПОЛЯ ВВОДА
+   q-select / q-input
+   ===================================================== */
+
+/* Текст внутри поля */
+
 .q-field__native,
 .q-field__input {
   color: var(--q-text);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
 }
+
+/* Подписи полей */
 
 .q-field__label {
   color: var(--q-text-secondary);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
 }
+
+/* Иконки и дополнительные элементы */
 
 .q-field__marginal {
   color: var(--q-text-secondary);
 }
 
+/* Граница outlined-полей */
+
 .q-field--outlined .q-field__control:before {
   border-color: var(--q-border);
 }
 
-// =====================================================
-// ВЫПАДАЮЩИЕ СПИСКИ / КАЛЕНДАРЬ
-// =====================================================
-:global(.q-menu) {
+/* =====================================================
+   ВЫПАДАЮЩИЕ СПИСКИ
+   ===================================================== */
+
+.q-menu {
   background: var(--q-card);
   color: var(--q-text);
 }
 
-:global(.q-menu .q-item) {
+/* Пункты списка */
+
+.q-menu .q-item {
   color: var(--q-text);
+
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
 }
 
-:global(.q-menu .q-item:hover) {
+/* Hover пункта */
+
+.q-menu .q-item:hover {
   background: var(--q-hover);
 }
 
-:global(.q-menu .q-item--active) {
+/* Выбранный пункт */
+
+.q-menu .q-item--active {
   color: var(--q-accent);
+  font-weight: 700;
 }
 
-:global(.q-date) {
+/* =====================================================
+   КАЛЕНДАРЬ
+   ===================================================== */
+
+.q-date {
   background: var(--q-card);
   color: var(--q-text);
 }
 
-// =====================================================
-// МЕЛОЧИ
-// =====================================================
+/* =====================================================
+   ВЫДЕЛЕНИЕ ТЕКСТА
+   ===================================================== */
+
 ::selection {
   background: var(--q-accent-soft);
 }
 
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: transparent; }
+/* =====================================================
+   SCROLLBAR
+   ===================================================== */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
   background: var(--q-border);
   border-radius: 6px;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--q-text-muted); }
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--q-text-muted);
+}

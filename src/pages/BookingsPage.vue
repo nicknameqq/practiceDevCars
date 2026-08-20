@@ -192,11 +192,29 @@ function normalizeDate(date) {
   return date.replace(/\//g, '-')
 }
 
-function isStartDateAvailable(date) {
+// ===== Ближайшая следующая бронь для машины =====
 
+const nextBookingStart = computed(() => {
+  if (!selectedCar.value || !startDate.value) {
+    return null
+  }
+
+  const upcoming = bookings
+    .filter(b =>
+      b.carId === selectedCar.value.id &&
+      b.startDate > startDate.value
+    )
+    .map(b => b.startDate)
+    .sort()
+
+  return upcoming.length ? upcoming[0] : null
+})
+
+// ===== Доступные даты =====
+
+function isStartDateAvailable(date) {
   const current = normalizeDate(date)
 
-  // Прошедшие даты
   if (current < today) {
     return false
   }
@@ -205,10 +223,7 @@ function isStartDateAvailable(date) {
     return true
   }
 
-  // Нельзя начинать аренду в день,
-  // когда автомобиль уже занят
   return !bookings.some(booking => {
-
     if (booking.carId !== selectedCar.value.id) {
       return false
     }
@@ -220,16 +235,13 @@ function isStartDateAvailable(date) {
   })
 }
 
-
 function isEndDateAvailable(date) {
-
   const current = normalizeDate(date)
 
   if (!startDate.value) {
     return false
   }
 
-  // Окончание должно быть позже начала
   if (current <= startDate.value) {
     return false
   }
@@ -238,31 +250,23 @@ function isEndDateAvailable(date) {
     return true
   }
 
-  // Проверяем, пересекается ли выбранный диапазон
-  // с существующей бронью
-  return !bookings.some(booking => {
+  // Разрешаем endDate == nextBookingStart (выезд день в день с заездом следующего)
+  // Запрещаем только СТРОГОЕ пересечение
+  if (nextBookingStart.value && current > nextBookingStart.value) {
+    return false
+  }
 
-    if (booking.carId !== selectedCar.value.id) {
-      return false
-    }
-
-    return (
-      startDate.value < booking.endDate &&
-      current > booking.startDate
-    )
-  })
+  return true
 }
 
 // ===== Проверки =====
 
 const hasDateConflict = computed(() => {
-
   if (!selectedCar.value || !datesValid.value) {
     return false
   }
 
   return bookings.some(booking => {
-
     if (booking.carId !== selectedCar.value.id) {
       return false
     }
