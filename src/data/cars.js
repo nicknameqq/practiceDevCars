@@ -45,7 +45,9 @@ const cars = [
   }
 ]
 
-
+export function getCarById(id) {
+  return cars.find(car => car.id === id)
+}
 
 
 export default cars

@@ -9,7 +9,10 @@
         Выберите автомобиль и даты аренды
       </p>
 
-      <!-- Изображение выбранного автомобиля -->
+
+      <!-- =========================
+           ИЗОБРАЖЕНИЕ АВТОМОБИЛЯ
+           ========================= -->
 
       <q-img
         v-if="selectedCar"
@@ -18,13 +21,17 @@
         class="booking-car-image"
       />
 
+
       <!-- =========================
            ФОРМА БРОНИРОВАНИЯ
            ========================= -->
 
       <div class="booking-card">
 
-        <!-- Автомобиль -->
+
+        <!-- =========================
+             АВТОМОБИЛЬ
+             ========================= -->
 
         <div class="booking-section">
 
@@ -44,11 +51,14 @@
         </div>
 
 
-        <!-- Даты -->
+        <!-- =========================
+             ДАТЫ
+             ========================= -->
 
         <div class="booking-dates">
 
-          <!-- Начало -->
+
+          <!-- ДАТА НАЧАЛА -->
 
           <div class="booking-section">
 
@@ -95,7 +105,7 @@
           </div>
 
 
-          <!-- Конец -->
+          <!-- ДАТА ОКОНЧАНИЯ -->
 
           <div class="booking-section">
 
@@ -123,14 +133,14 @@
                     transition-hide="scale"
                   >
 
-               <q-date
-                  v-model="endDate"
-                  mask="YYYY-MM-DD"
-                  :options="isEndDateAvailable"
-                  :events="occupiedDates"
-                  event-color="red-4"
-                  :default-year-month="endDateDefaultMonth"
-                />
+                    <q-date
+                      v-model="endDate"
+                      mask="YYYY-MM-DD"
+                      :options="isEndDateAvailable"
+                      :events="occupiedDates"
+                      event-color="red-4"
+                      :default-year-month="endDateDefaultMonth"
+                    />
 
                   </q-popup-proxy>
 
@@ -145,7 +155,9 @@
         </div>
 
 
-        <!-- Ошибка дат -->
+        <!-- =========================
+             ОШИБКА ДАТ
+             ========================= -->
 
         <div
           v-if="startDate && endDate && !datesValid"
@@ -155,7 +167,9 @@
         </div>
 
 
-        <!-- Итоги -->
+        <!-- =========================
+             ИТОГИ
+             ========================= -->
 
         <div
           v-if="selectedCar"
@@ -220,7 +234,9 @@
         </div>
 
 
-        <!-- Кнопка бронирования -->
+        <!-- =========================
+             КНОПКА БРОНИРОВАНИЯ
+             ========================= -->
 
         <q-btn
           class="booking-button"
@@ -244,7 +260,9 @@
         </h2>
 
 
-        <!-- Если броней нет -->
+        <!-- =========================
+             НЕТ БРОНИРОВАНИЙ
+             ========================= -->
 
         <div
           v-if="bookings.length === 0"
@@ -267,7 +285,9 @@
         </div>
 
 
-        <!-- Если бронирования есть -->
+        <!-- =========================
+             СПИСОК БРОНИРОВАНИЙ
+             ========================= -->
 
         <div
           v-else
@@ -282,9 +302,11 @@
 
             <div class="booking-info">
 
+
               <div class="booking-car">
 
-                {{ getCarName(booking.carId) }}
+                {{ getCarById(booking.carId)?.brand }}
+                {{ getCarById(booking.carId)?.model }}
 
               </div>
 
@@ -333,23 +355,58 @@
 </template>
 
 
-
 <script setup>
 
-import { ref, computed, onMounted } from 'vue'
+import {
+  ref,
+  computed,
+  onMounted
+} from 'vue'
+
 import { useRoute } from 'vue-router'
-import { Notify } from 'quasar'
 
-import { useBookings } from 'src/composables/useBookings.js'
-import { useNotifications } from 'src/composables/useNotifications.js'
 
-import cars from 'src/data/cars.js'
+// =========================
+// COMPOSABLES
+// =========================
 
 import {
-  isDateBooked,
-  isDateRangeBooked,
-  getOccupiedDates,
-  normalizeDate
+  useBookings
+} from 'src/composables/useBookings.js'
+
+import {
+  useNotifications
+} from 'src/composables/useNotifications.js'
+
+import {
+  useBookingActions
+} from 'src/composables/useBookingActions.js'
+
+import {
+  useBookingNotifications
+} from 'src/composables/useBookingNotifications.js'
+
+
+import {
+  useBookingCalendar
+} from 'src/composables/useBookingCalendar.js'
+
+
+// =========================
+// DATA
+// =========================
+
+import cars, {
+  getCarById
+} from 'src/data/cars.js'
+
+
+// =========================
+// UTILS
+// =========================
+
+import {
+  isDateRangeBooked
 } from 'src/utils/bookingUtils'
 
 
@@ -362,7 +419,7 @@ const route = useRoute()
 
 const {
   bookings,
-  createBooking: saveBooking,
+  addBooking,
   removeBooking
 } = useBookings()
 
@@ -388,6 +445,7 @@ const selectedCarId = ref(
 )
 
 const startDate = ref('')
+
 const endDate = ref('')
 
 
@@ -401,34 +459,33 @@ const endDateDefaultMonth = computed(() => {
     return undefined
   }
 
-  const start = new Date(startDate.value)
 
-  const nextDay = new Date(start)
+  const start =
+    new Date(startDate.value)
+
+
+  const nextDay =
+    new Date(start)
+
 
   nextDay.setDate(
     start.getDate() + 1
   )
 
+
   const year =
     nextDay.getFullYear()
+
 
   const month =
     String(
       nextDay.getMonth() + 1
     ).padStart(2, '0')
 
+
   return `${year}/${month}`
 
 })
-
-
-// =========================
-// СЕГОДНЯШНЯЯ ДАТА
-// =========================
-
-const today = new Date()
-  .toISOString()
-  .split('T')[0]
 
 
 // =========================
@@ -445,111 +502,31 @@ const selectedCar = computed(() => {
 })
 
 
-const carOptions = cars.map(car => ({
+const carOptions =
+  cars.map(car => ({
 
-  label:
-    `${car.brand} ${car.model} — ` +
-    `${car.price} ₴ / день`,
+    label:
+      `${car.brand} ${car.model} — ` +
+      `${car.price} ₴ / день`,
 
-  value: car.id
+    value:
+      car.id
 
-}))
-
-
-// =========================
-// ЗАНЯТЫЕ ДАТЫ
-// =========================
-
-const occupiedDates = computed(() => {
-
-  if (!selectedCar.value) {
-    return []
-  }
-
-  return getOccupiedDates(
-    selectedCar.value.id
-  )
-
-})
+  }))
 
 
 // =========================
-// ДОСТУПНОСТЬ ДАТЫ НАЧАЛА
+// КАЛЕНДАРЬ
 // =========================
 
-function isStartDateAvailable(date) {
-
-  const current =
-    normalizeDate(date)
-
-
-  // Прошедшие даты запрещены
-
-  if (current < today) {
-    return false
-  }
-
-
-  // Если автомобиль не выбран
-
-  if (!selectedCar.value) {
-    return true
-  }
-
-
-  // Нельзя начать аренду
-  // в занятую дату
-
-  return !isDateBooked(
-    selectedCar.value.id,
-    current
-  )
-
-}
-
-
-// =========================
-// ДОСТУПНОСТЬ ДАТЫ ОКОНЧАНИЯ
-// =========================
-
-function isEndDateAvailable(date) {
-
-  const current =
-    normalizeDate(date)
-
-
-  // Сначала выбираем начало
-
-  if (!startDate.value) {
-    return false
-  }
-
-
-  // Конец должен быть позже начала
-
-  if (
-    current <= startDate.value
-  ) {
-    return false
-  }
-
-
-  // Если автомобиль не выбран
-
-  if (!selectedCar.value) {
-    return true
-  }
-
-
-  // Проверяем весь диапазон
-
-  return !isDateRangeBooked(
-    selectedCar.value.id,
-    startDate.value,
-    current
-  )
-
-}
+const {
+  occupiedDates,
+  isStartDateAvailable,
+  isEndDateAvailable
+} = useBookingCalendar(
+  selectedCar,
+  startDate
+)
 
 
 // =========================
@@ -607,6 +584,7 @@ const rentalDays = computed(() => {
   const start =
     new Date(startDate.value)
 
+
   const end =
     new Date(endDate.value)
 
@@ -652,383 +630,68 @@ const canBook = computed(() => {
 
 
 // =========================
-// СОЗДАНИЕ БРОНИРОВАНИЯ
+// ДЕЙСТВИЯ БРОНИРОВАНИЯ
 // =========================
+//
+// Здесь теперь только:
+// createBooking
+//
+// Уведомления о предстоящей аренде
+// находятся в useBookingNotifications.
 
-function createBooking() {
+const {
+  createBooking,
+  cancelBooking
+} = useBookingActions({
 
-  if (!canBook.value) {
-    return
-  }
+  bookings,
 
+  selectedCar,
 
-  // Сохраняем данные до очистки формы
-
-  const carId =
-    selectedCar.value.id
-
-  const carName =
-    `${selectedCar.value.brand} ` +
-    `${selectedCar.value.model}`
-
-  const bookingStart =
-    startDate.value
-
-  const bookingEnd =
-    endDate.value
-
-  const bookingDays =
-    rentalDays.value
-
-  const bookingPrice =
-    totalPrice.value
-
-
-  // =========================
-  // СОХРАНЯЕМ БРОНИРОВАНИЕ
-  // =========================
-
-  saveBooking({
-
-    carId,
-
-    startDate:
-      bookingStart,
-
-    endDate:
-      bookingEnd,
-
-    days:
-      bookingDays,
-
-    totalPrice:
-      bookingPrice
-
-  })
-
-
-  // =========================
-  // УВЕДОМЛЕНИЕ О СОЗДАНИИ
-  // =========================
-
-  addNotification({
-
-    type: 'booking',
-
-    title:
-      'Бронирование создано',
-
-    message:
-      `${carName} — ` +
-      `${bookingStart} → ${bookingEnd}`,
-
-    icon:
-      'event_available'
-
-  })
-
-
-  // =========================
-  // УВЕДОМЛЕНИЕ О БУДУЩЕМ
-  // =========================
-
-  addFutureBookingNotification({
-
-    carId,
-
-    carName,
-
-    startDate:
-      bookingStart,
-
-    endDate:
-      bookingEnd
-
-  })
-
-
-  // =========================
-  // ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ
-  // =========================
-
-  Notify.create({
-
-    type:
-      'positive',
-
-    message:
-      'Бронирование успешно создано',
-
-    caption:
-      carName,
-
-    icon:
-      'check_circle',
-
-    position:
-      'top-right',
-
-    timeout:
-      3000
-
-  })
-
-
-  // =========================
-  // ОЧИЩАЕМ ФОРМУ
-  // =========================
-
-  startDate.value = ''
-
-  endDate.value = ''
-
-}
-
-
-// =========================
-// УВЕДОМЛЕНИЕ О ПРЕДСТОЯЩЕЙ АРЕНДЕ
-// =========================
-
-function addFutureBookingNotification({
-  carId,
-  carName,
   startDate,
-  endDate
-}) {
 
-  // Проверяем, существует ли
-  // уже такое уведомление
+  endDate,
 
-  const alreadyExists =
-    notifications.value.some(
-      notification =>
+  rentalDays,
 
-        notification.type ===
-          'booking_upcoming' &&
+  totalPrice,
 
-        notification.bookingStart ===
-          startDate &&
+  canBook,
 
-        notification.bookingEnd ===
-          endDate &&
+  addBooking,
 
-        notification.carId ===
-          carId
+  removeBooking,
 
-    )
+  addNotification
 
-
-  // Если уже есть —
-  // второй раз не создаём
-
-  if (alreadyExists) {
-    return
-  }
-
-
-  addNotification({
-
-    type:
-      'booking_upcoming',
-
-    title:
-      'Предстоящее бронирование',
-
-    message:
-      `${carName} — ` +
-      `начало аренды ${startDate}. ` +
-      `Окончание: ${endDate}`,
-
-    icon:
-      'event'
-
-  })
-
-}
+})
 
 
 // =========================
-// ПРОВЕРКА БУДУЩИХ БРОНИРОВАНИЙ
+// УВЕДОМЛЕНИЯ О ПРЕДСТОЯЩИХ БРОНИРОВАНИЯХ
 // =========================
 
-function checkUpcomingBookings() {
+const {
+  checkUpcomingBookings
+} = useBookingNotifications(
 
-  bookings.value.forEach(
-    booking => {
+  bookings,
 
-      const car =
-        cars.find(
-          car =>
-            car.id === booking.carId
-        )
+  notifications,
 
+  addNotification
 
-      if (!car) {
-        return
-      }
-
-
-      const start =
-        new Date(booking.startDate)
-
-      const now =
-        new Date()
-
-
-      // Разница в миллисекундах
-
-      const difference =
-        start - now
-
-
-      // Переводим в дни
-
-      const daysUntilStart =
-        difference /
-        (1000 * 60 * 60 * 24)
-
-
-      // Если бронирование
-      // начинается в ближайшие 7 дней
-
-      if (
-        daysUntilStart >= 0 &&
-        daysUntilStart <= 7
-      ) {
-
-        addFutureBookingNotification({
-
-          carId:
-            booking.carId,
-
-          carName:
-            `${car.brand} ${car.model}`,
-
-          startDate:
-            booking.startDate,
-
-          endDate:
-            booking.endDate
-
-        })
-
-      }
-
-    }
-  )
-
-}
-
-
-// =========================
-// НАЗВАНИЕ АВТОМОБИЛЯ
-// =========================
-
-function getCarName(carId) {
-
-  const car =
-    cars.find(
-      car =>
-        car.id === carId
-    )
-
-
-  if (!car) {
-    return 'Автомобиль не найден'
-  }
-
-
-  return (
-    `${car.brand} ${car.model}`
-  )
-
-}
+)
 
 
 // =========================
 // ОТМЕНА БРОНИРОВАНИЯ
 // =========================
 
-function cancelBooking(id) {
-
-  const booking =
-    bookings.value.find(
-      booking =>
-        booking.id === id
-    )
-
-
-  // Если бронирование найдено
-
-  if (booking) {
-
-    const carName =
-      getCarName(
-        booking.carId
-      )
-
-
-    // Удаляем бронирование
-
-    removeBooking(id)
-
-
-    // =========================
-    // УВЕДОМЛЕНИЕ ОБ ОТМЕНЕ
-    // =========================
-
-    addNotification({
-
-      type:
-        'booking_cancelled',
-
-      title:
-        'Бронирование отменено',
-
-      message:
-        `${carName} — ` +
-        `${booking.startDate} → ` +
-        `${booking.endDate}`,
-
-      icon:
-        'event_busy'
-
-    })
-
-
-    // =========================
-    // ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ
-    // =========================
-
-    Notify.create({
-
-      type:
-        'warning',
-
-      message:
-        'Бронирование отменено',
-
-      caption:
-        carName,
-
-      icon:
-        'event_busy',
-
-      position:
-        'top-right',
-
-      timeout:
-        3000
-
-    })
-
-  }
-
-}
 
 
 // =========================
-// ПРОВЕРЯЕМ БУДУЩИЕ БРОНИ
+// ПРОВЕРКА БУДУЩИХ БРОНИРОВАНИЙ
 // ПРИ ОТКРЫТИИ СТРАНИЦЫ
 // =========================
 
@@ -1041,25 +704,41 @@ onMounted(() => {
 </script>
 
 
-
 <style scoped>
+
+/* =========================
+   ПОЛЯ ФОРМЫ
+   ========================= */
 
 .booking-card :deep(.q-field__control),
 .booking-card :deep(.q-field__native),
 .booking-card :deep(.q-field__input) {
-  color: var(--q-text);
+
+  color:
+    var(--q-text);
+
 }
 
 
 .booking-card :deep(.q-field__label) {
-  color: var(--q-text);
-  opacity: 0.6;
+
+  color:
+    var(--q-text);
+
+  opacity:
+    0.6;
+
 }
 
 
 .booking-card :deep(.q-field__marginal) {
-  color: var(--q-text);
-  opacity: 0.7;
+
+  color:
+    var(--q-text);
+
+  opacity:
+    0.7;
+
 }
 
 
@@ -1068,33 +747,58 @@ onMounted(() => {
    ========================= */
 
 .bookings-page {
-  min-height: 100%;
-  background: var(--q-background);
+
+  min-height:
+    100%;
+
+  background:
+    var(--q-background);
+
 }
 
 
 .page-content {
-  padding: 40px;
+
+  padding:
+    40px;
+
 }
 
 
 h1 {
-  text-align: center;
-  margin: 0;
 
-  font-size: 36px;
-  font-weight: 700;
+  text-align:
+    center;
+
+  margin:
+    0;
+
+  font-size:
+    36px;
+
+  font-weight:
+    700;
+
 }
 
 
 .subtitle {
-  text-align: center;
 
-  margin-top: 10px;
-  margin-bottom: 25px;
+  text-align:
+    center;
 
-  font-size: 18px;
-  opacity: 0.65;
+  margin-top:
+    10px;
+
+  margin-bottom:
+    25px;
+
+  font-size:
+    18px;
+
+  opacity:
+    0.65;
+
 }
 
 
@@ -1103,14 +807,22 @@ h1 {
    ========================= */
 
 .booking-car-image {
-  display: block;
 
-  width: 450px;
-  max-width: 100%;
+  display:
+    block;
 
-  margin: 0 auto 25px;
+  width:
+    450px;
 
-  border-radius: 16px;
+  max-width:
+    100%;
+
+  margin:
+    0 auto 25px;
+
+  border-radius:
+    16px;
+
 }
 
 
@@ -1119,63 +831,103 @@ h1 {
    ========================= */
 
 .booking-card {
-  width: 100%;
-  max-width: 900px;
 
-  margin: 0 auto;
+  width:
+    100%;
 
-  padding: 35px;
+  max-width:
+    900px;
 
-  background: var(--q-card);
-  color: var(--q-text);
+  margin:
+    0 auto;
 
-  border-radius: 18px;
+  padding:
+    35px;
 
-  border: 1px solid rgba(128, 128, 128, 0.2);
+  background:
+    var(--q-card);
+
+  color:
+    var(--q-text);
+
+  border-radius:
+    18px;
+
+  border:
+    1px solid
+    rgba(128, 128, 128, 0.2);
 
   box-shadow:
     0 4px 20px
     rgba(0, 0, 0, 0.06);
+
 }
 
 
 .booking-section {
-  flex: 1;
+
+  flex:
+    1;
+
 }
 
 
 :global(.q-date) {
-  background: var(--q-card);
-  color: var(--q-text);
+
+  background:
+    var(--q-card);
+
+  color:
+    var(--q-text);
+
 }
 
 
 .section-title {
-  margin-bottom: 8px;
 
-  font-size: 14px;
-  font-weight: 600;
+  margin-bottom:
+    8px;
 
-  opacity: 0.8;
+  font-size:
+    14px;
+
+  font-weight:
+    600;
+
+  opacity:
+    0.8;
+
 }
 
 
 .booking-dates {
-  display: flex;
 
-  gap: 20px;
+  display:
+    flex;
 
-  margin-top: 25px;
+  gap:
+    20px;
+
+  margin-top:
+    25px;
+
 }
 
 
 .date-error {
-  margin-top: 12px;
 
-  color: #d32f2f;
+  margin-top:
+    12px;
 
-  font-size: 14px;
-  font-weight: 500;
+  color:
+    #d32f2f;
+
+  font-size:
+    14px;
+
+  font-weight:
+    500;
+
 }
 
 
@@ -1184,47 +936,73 @@ h1 {
    ========================= */
 
 .booking-summary {
-  margin-top: 30px;
 
-  padding: 20px;
+  margin-top:
+    30px;
 
-  border-radius: 12px;
+  padding:
+    20px;
+
+  border-radius:
+    12px;
 
   background:
     rgba(128, 128, 128, 0.08);
+
 }
 
 
 .summary-row,
 .total-row {
-  display: flex;
 
-  justify-content: space-between;
-  align-items: center;
+  display:
+    flex;
+
+  justify-content:
+    space-between;
+
+  align-items:
+    center;
+
 }
 
 
 .summary-row {
-  margin-bottom: 14px;
+
+  margin-bottom:
+    14px;
+
 }
 
 
 .total-row {
-  margin-top: 18px;
 
-  font-size: 22px;
-  font-weight: 700;
+  margin-top:
+    18px;
+
+  font-size:
+    22px;
+
+  font-weight:
+    700;
+
 }
 
 
 .booking-button {
-  width: 100%;
 
-  height: 55px;
+  width:
+    100%;
 
-  margin-top: 30px;
+  height:
+    55px;
 
-  border-radius: 10px;
+  margin-top:
+    30px;
+
+  border-radius:
+    10px;
+
 }
 
 
@@ -1233,53 +1011,85 @@ h1 {
    ========================= */
 
 .my-bookings {
-  width: 100%;
-  max-width: 900px;
 
-  margin: 40px auto 0;
+  width:
+    100%;
+
+  max-width:
+    900px;
+
+  margin:
+    40px auto 0;
+
 }
 
 
 .my-bookings h2 {
-  margin: 0 0 20px;
 
-  font-size: 28px;
-  font-weight: 700;
+  margin:
+    0 0 20px;
+
+  font-size:
+    28px;
+
+  font-weight:
+    700;
+
 }
 
 
 .empty-bookings {
-  padding: 50px 20px;
 
-  display: flex;
+  padding:
+    50px 20px;
 
-  flex-direction: column;
+  display:
+    flex;
 
-  align-items: center;
+  flex-direction:
+    column;
 
-  text-align: center;
+  align-items:
+    center;
 
-  background: var(--q-card);
-  color: var(--q-text);
+  text-align:
+    center;
 
-  border-radius: 18px;
+  background:
+    var(--q-card);
 
-  border: 1px solid
+  color:
+    var(--q-text);
+
+  border-radius:
+    18px;
+
+  border:
+    1px solid
     rgba(128, 128, 128, 0.2);
+
 }
 
 
 .empty-bookings h3 {
-  margin: 15px 0 8px;
 
-  font-size: 22px;
+  margin:
+    15px 0 8px;
+
+  font-size:
+    22px;
+
 }
 
 
 .empty-bookings p {
-  margin: 0;
 
-  opacity: 0.65;
+  margin:
+    0;
+
+  opacity:
+    0.65;
+
 }
 
 
@@ -1288,67 +1098,104 @@ h1 {
    ========================= */
 
 .bookings-list {
-  display: flex;
 
-  flex-direction: column;
+  display:
+    flex;
 
-  gap: 15px;
+  flex-direction:
+    column;
+
+  gap:
+    15px;
+
 }
 
 
 .booking-item {
-  padding: 20px;
 
-  display: flex;
+  padding:
+    20px;
 
-  align-items: center;
+  display:
+    flex;
 
-  justify-content: space-between;
+  align-items:
+    center;
 
-  gap: 20px;
+  justify-content:
+    space-between;
 
-  background: var(--q-card);
-  color: var(--q-text);
+  gap:
+    20px;
 
-  border-radius: 16px;
+  background:
+    var(--q-card);
 
-  border: 1px solid
+  color:
+    var(--q-text);
+
+  border-radius:
+    16px;
+
+  border:
+    1px solid
     rgba(128, 128, 128, 0.2);
+
 }
 
 
 .booking-info {
-  display: flex;
 
-  align-items: center;
+  display:
+    flex;
 
-  gap: 25px;
+  align-items:
+    center;
 
-  flex-wrap: wrap;
+  gap:
+    25px;
+
+  flex-wrap:
+    wrap;
+
 }
 
 
 .booking-car {
-  font-size: 18px;
 
-  font-weight: 700;
+  font-size:
+    18px;
+
+  font-weight:
+    700;
+
 }
 
 
 .booking-dates-info {
-  opacity: 0.75;
+
+  opacity:
+    0.75;
+
 }
 
 
 .booking-days {
-  opacity: 0.7;
+
+  opacity:
+    0.7;
+
 }
 
 
 .booking-price {
-  font-size: 18px;
 
-  font-weight: 700;
+  font-size:
+    18px;
+
+  font-weight:
+    700;
+
 }
 
 
@@ -1359,38 +1206,59 @@ h1 {
 @media (max-width: 700px) {
 
   .page-content {
-    padding: 20px;
+
+    padding:
+      20px;
+
   }
 
 
   h1 {
-    font-size: 28px;
+
+    font-size:
+      28px;
+
   }
 
 
   .booking-dates {
-    flex-direction: column;
+
+    flex-direction:
+      column;
+
   }
 
 
   .booking-card {
-    padding: 24px;
+
+    padding:
+      24px;
+
   }
 
 
   .booking-item {
-    flex-direction: column;
 
-    align-items: stretch;
+    flex-direction:
+      column;
+
+    align-items:
+      stretch;
+
   }
 
 
   .booking-info {
-    flex-direction: column;
 
-    align-items: flex-start;
+    flex-direction:
+      column;
 
-    gap: 8px;
+    align-items:
+      flex-start;
+
+    gap:
+      8px;
+
   }
 
 }

@@ -1,43 +1,103 @@
 import { ref } from 'vue'
 
+
 const STORAGE_KEY = 'bookings'
 
-const bookings = ref(loadBookings())
+
+const bookings = ref(
+  loadBookings()
+)
+
+
+// =========================
+// ЗАГРУЗКА БРОНИРОВАНИЙ
+// =========================
 
 function loadBookings() {
-  const data = localStorage.getItem(STORAGE_KEY)
-  return data ? JSON.parse(data) : []
+
+  const data =
+    localStorage.getItem(
+      STORAGE_KEY
+    )
+
+  return data
+    ? JSON.parse(data)
+    : []
+
 }
 
+
+// =========================
+// СОХРАНЕНИЕ БРОНИРОВАНИЙ
+// =========================
+
 function saveBookings() {
+
   localStorage.setItem(
+
     STORAGE_KEY,
-    JSON.stringify(bookings.value)
+
+    JSON.stringify(
+      bookings.value
+    )
+
   )
+
 }
+
 
 export function useBookings() {
 
-  function createBooking(booking) {
+
+  // =========================
+  // ДОБАВЛЕНИЕ БРОНИРОВАНИЯ
+  // =========================
+
+  function addBooking(booking) {
+
     bookings.value.push({
-      id: Date.now(),
+
+      id:
+        Date.now(),
+
       ...booking
+
     })
 
+
     saveBookings()
+
   }
+
+
+  // =========================
+  // УДАЛЕНИЕ БРОНИРОВАНИЯ
+  // =========================
 
   function removeBooking(id) {
-    bookings.value = bookings.value.filter(
-      booking => booking.id !== id
-    )
+
+    bookings.value =
+      bookings.value.filter(
+
+        booking =>
+          booking.id !== id
+
+      )
+
 
     saveBookings()
+
   }
 
+
   return {
+
     bookings,
-    createBooking,
+
+    addBooking,
+
     removeBooking
+
   }
+
 }
