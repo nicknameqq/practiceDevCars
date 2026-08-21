@@ -18,11 +18,79 @@
           />
 
           <div>
-            <div class="user-name">Artem</div>
-            <div class="user-email">artem@email.com</div>
+            <div class="user-name">{{ user.name }}</div>
+            <div class="user-email">{{ user.email }}</div>
           </div>
         </div>
       </q-card>
+
+        <div class="profile-stats">
+
+          <q-card
+            class="stat-card"
+            flat
+          >
+            <div class="stat-value">
+              {{ userBookings.length }}
+            </div>
+
+            <div class="stat-label">
+              Всего бронирований
+            </div>
+          </q-card>
+
+
+          <q-card
+            class="stat-card"
+            flat
+          >
+            <div class="stat-value">
+              {{ activeBookings }}
+            </div>
+
+            <div class="stat-label">
+              Активных бронирований
+            </div>
+          </q-card>
+
+
+          <q-card
+            class="stat-card"
+            flat
+          >
+            <div class="stat-value">
+              {{ totalSpent }} ₴
+            </div>
+
+            <div class="stat-label">
+              Потрачено всего
+            </div>
+          </q-card>
+
+        </div>
+
+          <div class="quick-actions">
+
+            <q-btn
+              unelevated
+              color="primary"
+              icon="directions_car"
+              label="Забронировать автомобиль"
+              class="quick-action-btn"
+              to="/bookings"
+            />
+
+            <q-btn
+              outline
+              color="primary"
+              icon="favorite"
+              label="Избранное"
+              class="quick-action-btn"
+              to="/favorites"
+            />
+
+          </div>
+
 
       <h2 class="section-title">Мои бронирования</h2>
 
@@ -96,10 +164,10 @@
 
               <q-btn
                 outline
-                disable
                 color="negative"
-                label="Отмена (скоро)"
+                label="Отменить бронирование"
                 class="cancel-btn"
+                @click="cancelBooking(booking.id)"
               />
 
             </div>
@@ -121,14 +189,34 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import cars from 'src/data/cars'
-import bookings from 'src/data/bookings'
+import { useProfile } from 'src/composables/useProfile'
+import { useBookings } from 'src/composables/useBookings'
+import { useNotifications } from 'src/composables/useNotifications'
+import { useBookingCancel } from 'src/composables/useBookingCancel'
 
-// Временно фиксированный пользователь
-const currentUserId = 1
+const {
+  user,
+  userBookings,
+  totalSpent,
+  activeBookings
+} = useProfile()
 
-const today = new Date().toISOString().split('T')[0]
+const {
+  bookings,
+  removeBooking
+} = useBookings()
+
+const {
+  addNotification
+} = useNotifications()
+
+const {
+  cancelBooking
+} = useBookingCancel({
+  bookings,
+  removeBooking,
+  addNotification
+})
 
 function formatDate(date) {
   return new Intl.DateTimeFormat('ru-RU', {
@@ -138,52 +226,7 @@ function formatDate(date) {
   }).format(new Date(date))
 }
 
-function getStatus(startDate, endDate) {
-  if (today < startDate) {
-    return {
-      label: 'Предстоит',
-      color: 'info'
-    }
-  }
 
-  if (today >= endDate) {
-    return {
-      label: 'Завершено',
-      color: 'grey-7'
-    }
-  }
-
-  return {
-    label: 'Активно',
-    color: 'positive'
-  }
-}
-
-const userBookings = computed(() => {
-  return bookings
-    .filter(b => b.userId === currentUserId)
-    .map(booking => {
-      const car = cars.find(c => c.id === booking.carId)
-
-      const start = new Date(booking.startDate)
-      const end = new Date(booking.endDate)
-
-      const days = Math.round(
-        (end - start) / (1000 * 60 * 60 * 24)
-      )
-
-      return {
-        ...booking,
-        car,
-        days,
-        totalPrice: days * car.price,
-        status: getStatus(
-          booking.startDate,
-          booking.endDate
-        )
-      }
-    })
-})
 </script>
 
 <style scoped>
@@ -196,6 +239,34 @@ const userBookings = computed(() => {
   max-width: 1050px;
   margin: 0 auto;
   padding: 40px 24px;
+}
+
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 34px;
+}
+
+.stat-card {
+  padding: 24px;
+  text-align: center;
+
+  background: var(--q-card);
+  border: 1px solid var(--q-border);
+  border-radius: 18px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.stat-label {
+  margin-top: 6px;
+  opacity: .65;
+  font-size: 14px;
 }
 
 h1 {
@@ -319,6 +390,19 @@ h1 {
   text-align: center;
 }
 
+
+.quick-actions {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 34px;
+}
+
+.quick-action-btn {
+  min-height: 46px;
+  border-radius: 12px;
+  padding: 0 22px;
+}
+
 @media (max-width: 850px) {
   .booking-content {
     flex-direction: column;
@@ -344,8 +428,17 @@ h1 {
     text-align: center;
   }
 
+  .profile-stats {
+  grid-template-columns: 1fr;
+}
+
   .page-content {
     padding: 24px 16px;
   }
+
+ .quick-action-btn {
+    width: 100%;
+  }
+
 }
 </style>

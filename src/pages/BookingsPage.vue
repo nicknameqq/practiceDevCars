@@ -365,6 +365,9 @@ import {
 
 import { useRoute } from 'vue-router'
 
+import {
+  useBookingCancel
+} from 'src/composables/useBookingCancel.js'
 
 // =========================
 // COMPOSABLES
@@ -389,7 +392,7 @@ import {
 
 import {
   useBookingCalendar
-} from 'src/composables/useBookingCalendar.js'
+} from 'src/composables/useBookingsCalendar.js'
 
 
 // =========================
@@ -639,32 +642,6 @@ const canBook = computed(() => {
 // Уведомления о предстоящей аренде
 // находятся в useBookingNotifications.
 
-const {
-  createBooking,
-  cancelBooking
-} = useBookingActions({
-
-  bookings,
-
-  selectedCar,
-
-  startDate,
-
-  endDate,
-
-  rentalDays,
-
-  totalPrice,
-
-  canBook,
-
-  addBooking,
-
-  removeBooking,
-
-  addNotification
-
-})
 
 
 // =========================
@@ -672,6 +649,7 @@ const {
 // =========================
 
 const {
+  addFutureBookingNotification,
   checkUpcomingBookings
 } = useBookingNotifications(
 
@@ -683,6 +661,32 @@ const {
 
 )
 
+
+const {
+  createBooking
+} = useBookingActions({
+  selectedCar,
+  startDate,
+  endDate,
+  rentalDays,
+  totalPrice,
+  canBook,
+  addBooking,
+  addNotification,
+  addFutureBookingNotification
+})
+
+const {
+  cancelBooking
+} = useBookingCancel({
+
+  bookings,
+
+  removeBooking,
+
+  addNotification
+
+})
 
 // =========================
 // ОТМЕНА БРОНИРОВАНИЯ

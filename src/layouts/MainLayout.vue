@@ -665,6 +665,9 @@ function formatNotificationDate(date) {
 
 }
 
+.q-header .q-toolbar {
+  min-height: 64px;
+}
 
 .notifications-title {
 

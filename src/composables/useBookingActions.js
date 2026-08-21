@@ -1,34 +1,17 @@
 import { Notify } from 'quasar'
 
-import {
-  getCarById
-} from 'src/data/cars.js'
 
 
 export function useBookingActions({
-
   selectedCar,
-
   startDate,
-
   endDate,
-
   rentalDays,
-
   totalPrice,
-
   canBook,
-
   addBooking,
-
-  removeBooking,
-
   addNotification,
-
-  addFutureBookingNotification,
-
-  bookings
-
+  addFutureBookingNotification
 }) {
 
 
@@ -74,6 +57,7 @@ export function useBookingActions({
 
     addBooking({
 
+      userId: 1, 
       carId,
 
       startDate:
@@ -132,6 +116,17 @@ export function useBookingActions({
     })
 
 
+
+          Notify.create({
+        type: 'positive',
+        message: 'Бронирование создано',
+        caption: carName,
+        icon: 'event_available',
+        position: 'top-right',
+        timeout: 3000
+      })
+
+
     // =========================
     // ОЧИЩАЕМ ФОРМУ
     // =========================
@@ -147,120 +142,9 @@ export function useBookingActions({
   // ОТМЕНА БРОНИРОВАНИЯ
   // =========================
 
-  function cancelBooking(id) {
-
-    // =========================
-    // НАХОДИМ БРОНИРОВАНИЕ
-    // =========================
-
-    const booking =
-      bookings.value.find(
-
-        booking =>
-          booking.id === id
-
-      )
-
-
-    if (!booking) {
-      return
-    }
-
-
-    // =========================
-    // НАХОДИМ АВТОМОБИЛЬ
-    // =========================
-
-    const car =
-      getCarById(
-        booking.carId
-      )
-
-
-    // =========================
-    // НАЗВАНИЕ АВТОМОБИЛЯ
-    // =========================
-
-    const carName =
-      car
-        ? `${car.brand} ${car.model}`
-        : 'Автомобиль'
-
-
-    // =========================
-    // УДАЛЯЕМ БРОНИРОВАНИЕ
-    // =========================
-
-    removeBooking(id)
-
-
-    // =========================
-    // СОЗДАЁМ УВЕДОМЛЕНИЕ
-    // =========================
-
-    addNotification({
-
-      type:
-        'booking_cancelled',
-
-      title:
-        'Бронирование отменено',
-
-      message:
-        `${carName} — ` +
-        `${booking.startDate} → ` +
-        `${booking.endDate}`,
-
-      icon:
-        'event_busy',
-
-      carId:
-        booking.carId,
-
-      bookingStart:
-        booking.startDate,
-
-      bookingEnd:
-        booking.endDate
-
-    })
-
-
-    // =========================
-    // ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ
-    // =========================
-
-    Notify.create({
-
-      type:
-        'warning',
-
-      message:
-        'Бронирование отменено',
-
-      caption:
-        carName,
-
-      icon:
-        'event_busy',
-
-      position:
-        'top-right',
-
-      timeout:
-        3000
-
-    })
-
-  }
-
 
   return {
-
-    createBooking,
-
-    cancelBooking
-
+    createBooking
   }
 
 }
