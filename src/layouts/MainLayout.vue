@@ -245,20 +245,44 @@
                ПЕРЕКЛЮЧЕНИЕ ТЕМЫ
                ========================= -->
 
-          <ThemeToggle />
+     
+            <ThemeToggle />
+
+            <!-- =========================
+                АВТОРИЗАЦИЯ
+                ========================= -->
+
+            <q-btn
+              v-if="!isAuthenticated"
+              flat
+              label="Войти"
+              icon="login"
+              @click="router.push('/login')"
+            />
+
+            <template v-else>
+
+              <q-avatar size="36px">
+                <img
+                  src="https://cdn.quasar.dev/img/avatar.png"
+                >
+              </q-avatar>
+
+              <q-btn
+                flat
+                label="Выйти"
+                icon="logout"
+                @click="handleLogout"
+              />
+
+            </template>
+
+
 
 
           <!-- =========================
                ПРОФИЛЬ
                ========================= -->
-
-          <q-avatar size="36px">
-
-            <img
-              src="https://cdn.quasar.dev/img/avatar.png"
-            >
-
-          </q-avatar>
 
         </div>
 
@@ -470,18 +494,24 @@
 </template>
 
 
-<script setup>
 
+<script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 import ThemeToggle from 'src/components/ThemeToggle.vue'
+import { useFavorites } from 'src/composables/useFavorites.js'
+import { useNotifications } from 'src/composables/useNotifications.js'
+import { useAuth } from 'src/composables/useAuth.js'
 
-import { useFavorites }
-  from 'src/composables/useFavorites.js'
+const router = useRouter()
 
-import { useNotifications }
-  from 'src/composables/useNotifications.js'
+const { isAuthenticated, logout } = useAuth()
 
+function handleLogout() {
+  logout()
+  router.push('/login')
+}
 
 // =========================
 // DRAWER
@@ -489,67 +519,45 @@ import { useNotifications }
 
 const leftDrawerOpen = ref(true)
 
-
 function toggleLeftDrawer() {
-
-  leftDrawerOpen.value =
-    !leftDrawerOpen.value
-
+  leftDrawerOpen.value = !leftDrawerOpen.value
 }
-
 
 // =========================
 // ИЗБРАННОЕ
 // =========================
 
-const { favoriteCars } =
-  useFavorites()
+const { favoriteCars } = useFavorites()
 
-
-const favoritesCount =
-  computed(() => {
-
-    return favoriteCars.value.length
-
-  })
-
+const favoritesCount = computed(() => {
+  return favoriteCars.value.length
+})
 
 // =========================
 // УВЕДОМЛЕНИЯ
 // =========================
 
 const {
-
   notifications,
-
   unreadCount,
-
   markAsRead,
-
   markAllAsRead,
-
   removeAllNotifications
-
 } = useNotifications()
-
 
 // =========================
 // КЛИК ПО УВЕДОМЛЕНИЮ
 // =========================
 
 function handleNotificationClick(id) {
-
   markAsRead(id)
-
 }
-
 
 // =========================
 // ФОРМАТИРОВАНИЕ ДАТЫ
 // =========================
 
 function formatNotificationDate(date) {
-
   return new Date(date).toLocaleString(
     'ru-RU',
     {
@@ -560,10 +568,10 @@ function formatNotificationDate(date) {
       minute: '2-digit'
     }
   )
-
 }
-
 </script>
+
+
 
 
 <style scoped>

@@ -7,15 +7,6 @@ import {
 } from 'vue-router'
 import routes from './routes'
 
-/*
- * If not building with SSR mode, you can
- * directly export the Router instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Router instance.
- */
-
 export default defineRouter(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
@@ -33,5 +24,20 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   })
 
+  Router.beforeEach((to) => {
+    const token = localStorage.getItem('token')
+
+    if (to.meta.requiresAuth && !token) {
+      return '/login'
+    }
+
+    if (to.meta.guestOnly && token) {
+      return '/'
+    }
+
+    return true
+  })
+
   return Router
 })
+
