@@ -10,7 +10,12 @@
         class="back-button"
       />
 
-      <div class="car-details-card">
+        <div v-if="loading">
+          Загрузка...
+        </div>
+        
+      <div  v-if="car" 
+      class="car-details-card">
 
         <div class="car-image">
           <img
@@ -94,19 +99,31 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { getCarById } from 'src/api/carsApi'
 import { getCarStatus } from 'src/utils/carStatus.js'
-import cars from 'src/data/cars.js'
 import CarStatus from 'src/components/CarStatus.vue'
 
 const route = useRoute()
 
+const car = ref(null)
+const loading = ref(false)
 
+async function loadCar() {
+  loading.value = true
 
-const car = computed(() => {
-  return cars.find(car => car.id === Number(route.params.id))
-})
+  try {
+    const response = await getCarById(route.params.id)
+    car.value = response.data
+  } catch (error) {
+    console.error('Failed to load car:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(loadCar)
 
 
 </script>

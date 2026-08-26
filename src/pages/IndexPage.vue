@@ -37,6 +37,19 @@
           />
         </div>
 
+            <div class="filter-item">
+              <div class="filter-label">
+                Трансмиссия
+              </div>
+
+              <q-select
+                outlined
+                v-model="transmission"
+                :options="transmissions"
+                label="Все трансмиссии"
+              />
+            </div>
+
         <div class="filter-item">
           <div class="filter-label">
             Максимальная цена
@@ -88,6 +101,15 @@
 
             </div>
 
+            <q-pagination
+              v-if="totalPages > 1"
+              v-model="currentPage"
+              :max="totalPages"
+              :max-pages="6"
+              direction-links
+              @update:model-value="changePage"
+            />
+
           </div>
 
     </div>
@@ -96,9 +118,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import cars from 'src/data/cars.js'
+import { ref, onMounted } from 'vue'
+import { getCars } from 'src/api/carsApi'
 import CarCard from 'src/components/CarCard.vue'
+
+const cars = ref([])
+const loading = ref(false)
+const currentPage = ref(1)
+const totalPages = ref(1)
+const filteredCars = cars
+const transmission = ref(null)
+const appliedTransmission = ref(null)
 
 const brand = ref(null)
 const bodyType = ref(null)
@@ -116,6 +146,10 @@ const brands = [
   'Toyota',
   'Volkswagen'
 ]
+const transmissions = [
+  'AUTOMATIC',
+  'MANUAL'
+]
 
 const bodyTypes = [
   'Седан',
@@ -125,38 +159,62 @@ const bodyTypes = [
   'Купе'
 ]
 
-const filteredCars = computed(() => {
-  return cars.filter(car => {
+async function loadCars() {
+  loading.value = true
 
-    const matchesBrand =
-      !appliedBrand.value || car.brand === appliedBrand.value
+  try {
+    const params = {
+      brand: appliedBrand.value || undefined,
+      bodyType: appliedBodyType.value || undefined,
+      transmission: appliedTransmission.value || undefined,
+      maxPrice: appliedMaxPrice.value || undefined,
+      page: currentPage.value - 1,
+      size: 12
+    }
 
-    const matchesBodyType =
-      !appliedBodyType.value || car.bodyType === appliedBodyType.value
+    const response = await getCars(params)
 
-    const matchesPrice =
-      !appliedMaxPrice.value ||
-      car.price <= Number(appliedMaxPrice.value)
+    cars.value = response.data.content
+    totalPages.value = response.data.totalPages
+  } catch (error) {
+    console.error('Failed to load cars:', error)
+  } finally {
+    loading.value = false
+  }
+}
 
-    return matchesBrand && matchesBodyType && matchesPrice
-  })
-})
+async function changePage(page) {
+  currentPage.value = page
+  await loadCars()
+}
 
-function applyFilters() {
+onMounted(loadCars)
+
+async function applyFilters() {
   appliedBrand.value = brand.value
   appliedBodyType.value = bodyType.value
   appliedMaxPrice.value = maxPrice.value
+  appliedTransmission.value = transmission.value
+
+  currentPage.value = 1
+  await loadCars()
 }
 
 
-function resetFilters() {
+async function resetFilters() {
   brand.value = null
   bodyType.value = null
   maxPrice.value = null
+  transmission.value = null
 
   appliedBrand.value = null
   appliedBodyType.value = null
   appliedMaxPrice.value = null
+  appliedTransmission.value = null
+
+  currentPage.value = 1
+
+  await loadCars()
 }
 
 </script>
@@ -309,6 +367,10 @@ h1 {
   opacity: 0.7;
 }
 
+.q-pagination {
+  margin-top: 30px;
+  justify-content: center;
+}
 
 /* =========================
    ВЫПАДАЮЩЕЕ МЕНЮ
