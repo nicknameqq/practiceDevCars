@@ -305,8 +305,8 @@
 
               <div class="booking-car">
 
-                {{ getCarById(booking.carId)?.brand }}
-                {{ getCarById(booking.carId)?.model }}
+                {{ findCar(booking.carId)?.brand }}
+                {{ findCar(booking.carId)?.model }}
 
               </div>
 
@@ -399,9 +399,7 @@ import {
 // DATA
 // =========================
 
-import cars, {
-  getCarById
-} from 'src/data/cars.js'
+import { getCars } from 'src/api/carsApi'
 
 
 // =========================
@@ -423,7 +421,8 @@ const route = useRoute()
 const {
   bookings,
   addBooking,
-  removeBooking
+  removeBooking,
+  loadBookings
 } = useBookings()
 
 
@@ -494,29 +493,32 @@ const endDateDefaultMonth = computed(() => {
 // =========================
 // АВТОМОБИЛИ
 // =========================
+const cars = ref([])
 
 const selectedCar = computed(() => {
-
-  return cars.find(
-    car =>
-      car.id === selectedCarId.value
+  return cars.value.find(
+    car => car.id === selectedCarId.value
   )
-
 })
 
-
-const carOptions =
-  cars.map(car => ({
-
-    label:
-      `${car.brand} ${car.model} — ` +
-      `${car.price} ₴ / день`,
-
-    value:
-      car.id
-
+const carOptions = computed(() =>
+  cars.value.map(car => ({
+    label: `${car.brand} ${car.model} — ${car.price} ₴ / день`,
+    value: car.id
   }))
+)
 
+async function loadCars() {
+  try {
+    const response = await getCars({
+      size: 100
+    })
+
+    cars.value = response.data.content
+  } catch (error) {
+    console.error('Failed to load cars:', error)
+  }
+}
 
 // =========================
 // КАЛЕНДАРЬ
@@ -528,7 +530,8 @@ const {
   isEndDateAvailable
 } = useBookingCalendar(
   selectedCar,
-  startDate
+  startDate,
+  bookings
 )
 
 
@@ -687,7 +690,11 @@ const {
   addNotification
 
 })
-
+function findCar(carId) {
+  return cars.value.find(
+    car => car.id === carId
+  )
+}
 // =========================
 // ОТМЕНА БРОНИРОВАНИЯ
 // =========================
@@ -699,10 +706,10 @@ const {
 // ПРИ ОТКРЫТИИ СТРАНИЦЫ
 // =========================
 
-onMounted(() => {
-
+onMounted(async () => {
+  await loadCars()
+  await loadBookings()
   checkUpcomingBookings()
-
 })
 
 </script>

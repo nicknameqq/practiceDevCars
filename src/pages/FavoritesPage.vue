@@ -63,23 +63,33 @@
 
 
 <script setup>
-import { computed } from 'vue'
-
-import cars from 'src/data/cars.js'
+import { ref, onMounted } from 'vue'
+import { getCarById } from 'src/api/carsApi'
 import CarCard from 'src/components/CarCard.vue'
 import { useFavorites } from 'src/composables/useFavorites.js'
 
+const favoriteCars = ref([])
 
 const {
-  favoriteCars: favoriteIds
+  favoriteCars: favorites,
+  loadFavorites
 } = useFavorites()
 
+async function loadFavoriteCars() {
+  await loadFavorites()
 
-const favoriteCars = computed(() => {
-  return cars.filter(car =>
-    favoriteIds.value.includes(car.id)
+  const cars = await Promise.all(
+    favorites.value.map(favorite =>
+      getCarById(favorite.carId)
+    )
   )
-})
+
+  favoriteCars.value = cars.map(
+    response => response.data
+  )
+}
+
+onMounted(loadFavoriteCars)
 </script>
 
 

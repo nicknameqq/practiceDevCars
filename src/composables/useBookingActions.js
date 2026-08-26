@@ -6,7 +6,6 @@ export function useBookingActions({
   selectedCar,
   startDate,
   endDate,
-  rentalDays,
   totalPrice,
   canBook,
   addBooking,
@@ -19,45 +18,33 @@ export function useBookingActions({
   // СОЗДАНИЕ БРОНИРОВАНИЯ
   // =========================
 
-  function createBooking() {
 
-    if (!canBook.value) {
-      return
-    }
+async function createBooking() {
 
+  if (!canBook.value) {
+    return
+  }
 
-    const carId =
-      selectedCar.value.id
+  const carId =
+    selectedCar.value.id
 
+  const carName =
+    `${selectedCar.value.brand} ` +
+    `${selectedCar.value.model}`
 
-    const carName =
-      `${selectedCar.value.brand} ` +
-      `${selectedCar.value.model}`
+  const bookingStart =
+    startDate.value
 
+  const bookingEnd =
+    endDate.value
 
-    const bookingStart =
-      startDate.value
+  const bookingPrice =
+    totalPrice.value
 
+  try {
 
-    const bookingEnd =
-      endDate.value
+    const booking = await addBooking({
 
-
-    const bookingDays =
-      rentalDays.value
-
-
-    const bookingPrice =
-      totalPrice.value
-
-
-    // =========================
-    // СОХРАНЯЕМ БРОНИРОВАНИЕ
-    // =========================
-
-    addBooking({
-
-      userId: 1, 
       carId,
 
       startDate:
@@ -66,18 +53,10 @@ export function useBookingActions({
       endDate:
         bookingEnd,
 
-      days:
-        bookingDays,
-
       totalPrice:
         bookingPrice
 
     })
-
-
-    // =========================
-    // УВЕДОМЛЕНИЕ О СОЗДАНИИ
-    // =========================
 
     addNotification({
 
@@ -96,11 +75,6 @@ export function useBookingActions({
 
     })
 
-
-    // =========================
-    // УВЕДОМЛЕНИЕ О БУДУЩЕЙ АРЕНДЕ
-    // =========================
-
     addFutureBookingNotification({
 
       carId,
@@ -115,27 +89,38 @@ export function useBookingActions({
 
     })
 
-
-
-          Notify.create({
-        type: 'positive',
-        message: 'Бронирование создано',
-        caption: carName,
-        icon: 'event_available',
-        position: 'top-right',
-        timeout: 3000
-      })
-
-
-    // =========================
-    // ОЧИЩАЕМ ФОРМУ
-    // =========================
+    Notify.create({
+      type: 'positive',
+      message: 'Бронирование создано',
+      caption: carName,
+      icon: 'event_available',
+      position: 'top-right',
+      timeout: 3000
+    })
 
     startDate.value = ''
-
     endDate.value = ''
 
+    return booking
+
+  } catch (error) {
+
+    console.error(
+      'Failed to create booking:',
+      error
+    )
+
+    Notify.create({
+      type: 'negative',
+      message: 'Не удалось создать бронирование',
+      position: 'top-right',
+      timeout: 3000
+    })
+
   }
+}
+
+
 
 
   // =========================
