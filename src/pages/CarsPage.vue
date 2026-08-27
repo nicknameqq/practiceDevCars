@@ -9,7 +9,23 @@
         Все доступные автомобили для аренды
       </p>
 
-      <div class="cars-grid">
+
+      <!-- Загрузка -->
+
+      <div
+        v-if="loading"
+        class="loading"
+      >
+        Загрузка автомобилей...
+      </div>
+
+
+      <!-- Автомобили -->
+
+      <div
+        v-else
+        class="cars-grid"
+      >
 
         <CarCard
           v-for="car in cars"
@@ -19,6 +35,25 @@
 
       </div>
 
+
+      <!-- Пагинация -->
+
+      <div
+        v-if="totalPages > 1"
+        class="pagination"
+      >
+
+        <q-pagination
+          v-model="currentPage"
+          :max="totalPages"
+          :max-pages="6"
+          boundary-numbers
+          direction-links
+        />
+
+      </div>
+
+
     </div>
 
   </q-page>
@@ -26,8 +61,67 @@
 
 
 <script setup>
-import cars from 'src/data/cars.js'
+
+import { ref, onMounted, watch } from 'vue'
+
+import { getCars } from 'src/api/carsApi'
+
 import CarCard from 'src/components/CarCard.vue'
+
+
+const cars = ref([])
+
+const loading = ref(false)
+
+const currentPage = ref(1)
+
+const totalPages = ref(1)
+
+
+async function loadCars() {
+
+  loading.value = true
+
+  try {
+
+    const response = await getCars({
+      page: currentPage.value - 1
+    })
+
+
+    cars.value =
+      response.data.content
+
+
+    totalPages.value =
+      response.data.totalPages
+
+
+  } catch (error) {
+
+    console.error(
+      'Failed to load cars:',
+      error
+    )
+
+  } finally {
+
+    loading.value = false
+
+  }
+
+}
+
+
+onMounted(loadCars)
+
+
+watch(currentPage, () => {
+
+  loadCars()
+
+})
+
 </script>
 
 
@@ -56,11 +150,28 @@ h1 {
   color: var(--q-text);
 }
 
+
 .cars-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   margin-top: 35px;
+}
+
+
+.loading {
+  margin-top: 35px;
+  font-size: 18px;
+  color: var(--q-text);
+  opacity: 0.7;
+}
+
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  padding-bottom: 30px;
 }
 
 
@@ -86,3 +197,4 @@ h1 {
 }
 
 </style>
+

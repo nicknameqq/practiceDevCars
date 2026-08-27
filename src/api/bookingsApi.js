@@ -9,5 +9,5 @@ export function createBooking(data) {
 }
 
 export function cancelBooking(id) {
-  return api.delete(`/bookings/${id}`)
+  return api.put(`/bookings/${id}/cancel`)
 }
