@@ -26,12 +26,17 @@ export default defineRouter(function (/* { store, ssrContext } */) {
 
   Router.beforeEach((to) => {
     const token = localStorage.getItem('token')
+    const role = localStorage.getItem('role')
 
     if (to.meta.requiresAuth && !token) {
       return '/login'
     }
 
     if (to.meta.guestOnly && token) {
+      return '/'
+    }
+
+      if (to.meta.requiresAdmin && role !== 'ADMIN') {
       return '/'
     }
 

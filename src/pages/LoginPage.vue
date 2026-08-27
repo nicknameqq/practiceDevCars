@@ -52,7 +52,7 @@ import { login } from 'src/api/authApi'
 import { useAuth } from 'src/composables/useAuth'
 
 const router = useRouter()
-const { setToken } = useAuth()
+const { setToken, setRole } = useAuth()
 
 const email = ref('')
 const password = ref('')
@@ -73,11 +73,13 @@ async function handleLogin() {
     const data = response.data
 
     setToken(data.token)
-
+    setRole(data.role)
+    
     localStorage.setItem('username', data.username)
     localStorage.setItem('email', data.email)
 
     await router.push('/')
+
   } catch (error) {
     console.error('Login failed:', error)
 

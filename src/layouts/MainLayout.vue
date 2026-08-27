@@ -431,6 +431,20 @@
 
         </q-item>
 
+       <!-- Админка -->
+         <q-item
+            v-if="isAdmin"
+            clickable
+            to="/admin"
+          >
+            <q-item-section avatar>
+              <q-icon name="admin_panel_settings" />
+            </q-item-section>
+
+            <q-item-section>
+              Админ-панель
+            </q-item-section>
+          </q-item>
 
         <!-- Отчёты -->
 
@@ -506,7 +520,7 @@ import { useAuth } from 'src/composables/useAuth.js'
 
 const router = useRouter()
 
-const { isAuthenticated, logout } = useAuth()
+const { isAdmin, isAuthenticated, logout } = useAuth()
 
 function handleLogout() {
   logout()

@@ -25,6 +25,14 @@ const routes = [
         component: () => import('pages/ProfilePage.vue'),
         meta: { requiresAuth: true }
       },
+        {
+          path: 'admin',
+          component: () => import('pages/AdminPage.vue'),
+            meta: {
+              requiresAuth: true,
+              requiresAdmin: true
+            }
+        },
       {
         path: 'favorites',
         component: () => import('pages/FavoritesPage.vue'),
