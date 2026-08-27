@@ -174,13 +174,17 @@
 
               </div>
 
-              <q-btn
-                outline
-                color="negative"
-                label="Отменить бронирование"
-                class="cancel-btn"
-                @click="cancelBooking(booking.id)"
-              />
+           <q-btn
+              outline
+              color="negative"
+              label="Отменить бронирование"
+              class="cancel-btn"
+              :disable="
+                booking.status === 'CANCELLED' ||
+                booking.status === 'COMPLETED'
+              "
+              @click="cancelBooking(booking.id)"
+            />
 
             </div>
 

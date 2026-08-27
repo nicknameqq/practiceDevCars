@@ -265,7 +265,7 @@
              ========================= -->
 
         <div
-          v-if="bookings.length === 0"
+          v-if="visibleBookings.length === 0"
           class="empty-bookings"
         >
 
@@ -295,7 +295,7 @@
         >
 
           <div
-            v-for="booking in bookings"
+            v-for="booking in visibleBookings"
             :key="booking.id"
             class="booking-item"
           >
@@ -425,7 +425,12 @@ const {
   loadBookings
 } = useBookings()
 
-
+const visibleBookings = computed(() =>
+  bookings.value.filter(booking =>
+    booking.status === 'PENDING' ||
+    booking.status === 'ACTIVE'
+  )
+)
 // =========================
 // УВЕДОМЛЕНИЯ
 // =========================
