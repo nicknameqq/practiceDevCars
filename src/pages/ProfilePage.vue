@@ -8,7 +8,12 @@
       </p>
 
       <!-- Профиль -->
-      <q-card class="profile-card" flat>
+      <q-card
+          v-if="user"
+          class="profile-card"
+          flat
+        >
+        
         <div class="profile-info">
           <q-avatar
             size="90px"
@@ -18,10 +23,18 @@
           />
 
           <div>
-            <div class="user-name">{{ user.name }}</div>
+            <div class="user-name">{{ user.username }}</div>
             <div class="user-email">{{ user.email }}</div>
           </div>
         </div>
+      </q-card>
+
+      <q-card
+        v-else
+        class="profile-card"
+        flat
+      >
+        Загрузка профиля...
       </q-card>
 
         <div class="profile-stats">
@@ -127,10 +140,10 @@
                 </div>
 
                 <q-chip
-                  :color="booking.status.color"
+                  :color="getBookingStatus(booking.status).color"
                   text-color="white"
                 >
-                  {{ booking.status.label }}
+                  {{ getBookingStatus(booking.status).label }}
                 </q-chip>
               </div>
 
@@ -150,8 +163,7 @@
 
                 <div>
                   <div class="label">Дней</div>
-                  <div>{{ booking.days }}</div>
-                </div>
+                  <div>{{ getBookingDays(booking.startDate, booking.endDate) }}</div>                </div>
 
                 <div>
                   <div class="label">Стоимость</div>
@@ -189,20 +201,26 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
+
 import { useProfile } from 'src/composables/useProfile'
 import { useBookings } from 'src/composables/useBookings'
 import { useNotifications } from 'src/composables/useNotifications'
 import { useBookingCancel } from 'src/composables/useBookingCancel'
 
+
+
 const {
   user,
   userBookings,
   totalSpent,
-  activeBookings
+  activeBookings,
+  loadProfile
 } = useProfile()
 
 const {
   bookings,
+  loadBookings,
   removeBooking
 } = useBookings()
 
@@ -225,6 +243,48 @@ function formatDate(date) {
     year: 'numeric'
   }).format(new Date(date))
 }
+
+function getBookingStatus(status) {
+  const statuses = {
+    PENDING: {
+      label: 'Ожидает подтверждения',
+      color: 'orange'
+    },
+    ACTIVE: {
+      label: 'Активно',
+      color: 'positive'
+    },
+    COMPLETED: {
+      label: 'Завершено',
+      color: 'grey'
+    },
+    CANCELLED: {
+      label: 'Отменено',
+      color: 'negative'
+    }
+  }
+
+  return statuses[status] || {
+    label: status,
+    color: 'grey'
+  }
+}
+
+function getBookingDays(startDate, endDate) {
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+
+  return Math.round(
+    (end - start) / (1000 * 60 * 60 * 24)
+  )
+}
+
+
+onMounted(async () => {
+  await loadProfile()
+  await loadBookings()
+})
+
 
 
 </script>

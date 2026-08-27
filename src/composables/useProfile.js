@@ -1,84 +1,121 @@
-import { computed } from 'vue'
-import cars from 'src/data/cars'
+import { ref, computed } from 'vue'
+
+import { getProfile } from 'src/api/profileApi'
 import { useBookings } from './useBookings'
 
-const CURRENT_USER_ID = 1
 
 export function useProfile() {
-  const { bookings } = useBookings()
 
-  const today = new Date().toISOString().split('T')[0]
+  const user = ref(null)
 
-  function getStatus(startDate, endDate) {
-    if (today < startDate) {
-      return {
-        label: 'Предстоит',
-        color: 'info'
-      }
+  const loading = ref(false)
+  const error = ref(null)
+
+  const {
+    bookings
+  } = useBookings()
+
+
+  // =========================
+  // Загрузка профиля
+  // =========================
+
+  async function loadProfile() {
+
+    loading.value = true
+    error.value = null
+
+    try {
+
+      const response = await getProfile()
+
+      user.value = response.data
+
+    } catch (err) {
+
+      console.error(
+        'Failed to load profile:',
+        err
+      )
+
+      error.value = err
+
+    } finally {
+
+      loading.value = false
+
     }
 
-    if (today >= endDate) {
-      return {
-        label: 'Завершено',
-        color: 'grey-7'
-      }
-    }
-
-    return {
-      label: 'Активно',
-      color: 'positive'
-    }
   }
 
-  const userBookings = computed(() => {
-    return bookings.value
-      .filter(booking => booking.userId === CURRENT_USER_ID)
-      .map(booking => {
-        const car = cars.find(c => c.id === booking.carId)
 
-        const start = new Date(booking.startDate)
-        const end = new Date(booking.endDate)
+  // =========================
+  // Брони пользователя
+  // =========================
+    const userBookings = computed(() => {
 
-        const days = Math.round(
-          (end - start) / (1000 * 60 * 60 * 24)
-        )
+      if (!user.value) {
+        return []
+      }
 
-        return {
-          ...booking,
-          car,
-          days,
-          totalPrice: days * car.price,
-          status: getStatus(
-            booking.startDate,
-            booking.endDate
-          )
-        }
-      })
-  })
+      return bookings.value
 
-  const totalSpent = computed(() =>
-    userBookings.value.reduce(
-      (sum, booking) => sum + booking.totalPrice,
+    })
+
+
+  // =========================
+  // Общая сумма
+  // =========================
+
+  const totalSpent = computed(() => {
+
+    return userBookings.value.reduce(
+      (sum, booking) =>
+        sum + Number(booking.totalPrice || 0),
       0
     )
-  )
 
-  const activeBookings = computed(() =>
-    userBookings.value.filter(
-      booking => booking.status.label === 'Активно'
-    ).length
-  )
+  })
 
-  const user = {
-    id: 1,
-    name: 'Artem',
-    email: 'artem@email.com'
-  }
+
+  // =========================
+  // Активные бронирования
+  // =========================
+
+  const activeBookings = computed(() => {
+
+    const today =
+      new Date()
+        .toISOString()
+        .split('T')[0]
+
+    return userBookings.value.filter(booking => {
+
+      return (
+        booking.status === 'ACTIVE' &&
+        today < booking.endDate
+      )
+
+    }).length
+
+  })
+
 
   return {
+
     user,
+
+    loading,
+    error,
+
     userBookings,
+
     totalSpent,
-    activeBookings
+    activeBookings,
+
+    loadProfile
+
   }
+
 }
+

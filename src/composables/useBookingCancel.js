@@ -11,88 +11,55 @@ export function useBookingCancel({
   addNotification
 }) {
 
-  function cancelBooking(id) {
+ async function cancelBooking(id) {
 
-    const booking =
-      bookings.value.find(
-        booking =>
-          booking.id === id
-      )
+  const booking =
+    bookings.value.find(
+      booking =>
+        booking.id === id
+    )
 
-    if (!booking) {
-      return
-    }
-
-
-    const car =
-      getCarById(
-        booking.carId
-      )
-
-
-    const carName =
-      car
-        ? `${car.brand} ${car.model}`
-        : 'Автомобиль'
-
-
-    // Удаляем бронирование
-    removeBooking(id)
-
-
-    // Добавляем уведомление в список
-    addNotification({
-
-      type:
-        'booking_cancelled',
-
-      title:
-        'Бронирование отменено',
-
-      message:
-        `${carName} — ` +
-        `${booking.startDate} → ` +
-        `${booking.endDate}`,
-
-      icon:
-        'event_busy',
-
-      carId:
-        booking.carId,
-
-      bookingStart:
-        booking.startDate,
-
-      bookingEnd:
-        booking.endDate
-
-    })
-
-
-    // Всплывающее уведомление
-    Notify.create({
-
-      type:
-        'warning',
-
-      message:
-        'Бронирование отменено',
-
-      caption:
-        carName,
-
-      icon:
-        'event_busy',
-
-      position:
-        'top-right',
-
-      timeout:
-        3000
-
-    })
-
+  if (!booking) {
+    return
   }
+
+  const car =
+    getCarById(
+      booking.carId
+    )
+
+  const carName =
+    car
+      ? `${car.brand} ${car.model}`
+      : 'Автомобиль'
+
+
+  await removeBooking(id)
+
+
+  addNotification({
+    type: 'booking_cancelled',
+    title: 'Бронирование отменено',
+    message:
+      `${carName} — ` +
+      `${booking.startDate} → ` +
+      `${booking.endDate}`,
+    icon: 'event_busy',
+    carId: booking.carId,
+    bookingStart: booking.startDate,
+    bookingEnd: booking.endDate
+  })
+
+
+  Notify.create({
+    type: 'warning',
+    message: 'Бронирование отменено',
+    caption: carName,
+    icon: 'event_busy',
+    position: 'top-right',
+    timeout: 3000
+  })
+}
 
 
   return {
