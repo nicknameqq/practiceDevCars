@@ -19,14 +19,14 @@ export function useFavorites() {
     }
   }
 
-  async function toggleFavorite(carId) {
+    async function toggleFavorite(carId) {
     try {
       if (isFavorite(carId)) {
         await removeFavorite(carId)
 
         favoriteCars.value =
           favoriteCars.value.filter(
-            favorite => favorite.carId !== carId
+            favorite => Number(favorite.carId) !== Number(carId)
           )
       } else {
         const response = await addFavorite(carId)
@@ -40,9 +40,11 @@ export function useFavorites() {
 
   function isFavorite(carId) {
     return favoriteCars.value.some(
-      favorite => favorite.carId === carId
+      favorite =>
+        Number(favorite.carId) === Number(carId)
     )
   }
+
 
   return {
     favoriteCars,

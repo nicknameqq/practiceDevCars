@@ -62,8 +62,9 @@
 </template>
 
 
+
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { getCarById } from 'src/api/carsApi'
 import CarCard from 'src/components/CarCard.vue'
 import { useFavorites } from 'src/composables/useFavorites.js'
@@ -76,8 +77,6 @@ const {
 } = useFavorites()
 
 async function loadFavoriteCars() {
-  await loadFavorites()
-
   const cars = await Promise.all(
     favorites.value.map(favorite =>
       getCarById(favorite.carId)
@@ -89,8 +88,20 @@ async function loadFavoriteCars() {
   )
 }
 
-onMounted(loadFavoriteCars)
+onMounted(async () => {
+  await loadFavorites()
+  await loadFavoriteCars()
+})
+
+watch(
+  favorites,
+  async () => {
+    await loadFavoriteCars()
+  },
+  { deep: true }
+)
 </script>
+
 
 
 <style scoped>
