@@ -406,9 +406,6 @@ import { getCars } from 'src/api/carsApi'
 // UTILS
 // =========================
 
-import {
-  isDateRangeBooked
-} from 'src/utils/bookingUtils'
 
 
 const route = useRoute()
@@ -563,7 +560,6 @@ const datesValid = computed(() => {
 
 
 const hasDateConflict = computed(() => {
-
   if (
     !selectedCar.value ||
     !datesValid.value
@@ -571,13 +567,23 @@ const hasDateConflict = computed(() => {
     return false
   }
 
+  return bookings.value.some(booking => {
+    if (
+      Number(booking.carId) !==
+      Number(selectedCar.value.id)
+    ) {
+      return false
+    }
 
-  return isDateRangeBooked(
-    selectedCar.value.id,
-    startDate.value,
-    endDate.value
-  )
+    if (booking.status === 'CANCELLED') {
+      return false
+    }
 
+    return (
+      startDate.value < booking.endDate &&
+      endDate.value > booking.startDate
+    )
+  })
 })
 
 

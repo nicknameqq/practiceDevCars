@@ -82,27 +82,17 @@ export function useBookingCalendar(
   //
   // НЕ пересекаются.
 
-  function isDateRangeBooked(
-    newStart,
-    newEnd
-  ) {
+ function isDateRangeBooked(newStart, newEnd) {
+  const normalizedStart = normalizeDate(newStart)
+  const normalizedEnd = normalizeDate(newEnd)
 
-    const normalizedStart =
-      normalizeDate(newStart)
-
-    const normalizedEnd =
-      normalizeDate(newEnd)
-
-    return carBookings.value.some(booking => {
-
-      return (
-        normalizedStart < booking.endDate &&
-        normalizedEnd > booking.startDate
-      )
-
-    })
-
-  }
+  return carBookings.value.some(booking => {
+    return (
+      normalizedStart < booking.endDate &&
+      normalizedEnd > booking.startDate
+    )
+  })
+}
 
 
   // Занятые даты для визуального отображения
@@ -159,36 +149,28 @@ export function useBookingCalendar(
 
   // Доступные даты окончания
 
- function isEndDateAvailable(date) {
-
-  // Прошедшие даты запрещены
-
+function isEndDateAvailable(date) {
   if (date < today.replace(/-/g, '/')) {
     return false
   }
-
-  // Если автомобиль ещё не выбран —
-  // разрешаем будущие даты
 
   if (!selectedCar.value) {
     return true
   }
 
-  // До выбора startDate просто блокируем
-  // даты, которые уже заняты
-
   if (!startDate.value) {
     return !isDateBooked(date)
   }
 
-  // EndDate должна быть позже StartDate
+  const normalizedStart = normalizeDate(startDate.value)
+  const normalizedDate = normalizeDate(date)
 
-  if (date <= startDate.value) {
+  // EndDate должна быть строго позже StartDate
+  if (normalizedDate <= normalizedStart) {
     return false
   }
 
   // Проверяем весь диапазон
-
   return !isDateRangeBooked(
     startDate.value,
     date
