@@ -35,10 +35,7 @@
 
       <div class="booking-card">
 
-
-        <!-- =========================
-             АВТОМОБИЛЬ
-             ========================= -->
+        <!-- АВТОМОБИЛЬ -->
 
         <div class="booking-section">
 
@@ -58,12 +55,9 @@
         </div>
 
 
-        <!-- =========================
-             ДАТЫ
-             ========================= -->
+        <!-- ДАТЫ -->
 
         <div class="booking-dates">
-
 
           <!-- ДАТА НАЧАЛА -->
 
@@ -162,9 +156,7 @@
         </div>
 
 
-        <!-- =========================
-             ОШИБКА ДАТ
-             ========================= -->
+        <!-- ОШИБКА ДАТ -->
 
         <div
           v-if="
@@ -178,9 +170,7 @@
         </div>
 
 
-        <!-- =========================
-             ИТОГИ
-             ========================= -->
+        <!-- ИТОГИ -->
 
         <div
           v-if="selectedCar"
@@ -245,9 +235,7 @@
         </div>
 
 
-        <!-- =========================
-             КНОПКА БРОНИРОВАНИЯ
-             ========================= -->
+        <!-- КНОПКА БРОНИРОВАНИЯ -->
 
         <q-btn
           class="booking-button"
@@ -271,9 +259,7 @@
         </h2>
 
 
-        <!-- =========================
-             НЕТ БРОНИРОВАНИЙ
-             ========================= -->
+        <!-- НЕТ БРОНИРОВАНИЙ -->
 
         <div
           v-if="visibleBookings.length === 0"
@@ -296,9 +282,7 @@
         </div>
 
 
-        <!-- =========================
-             СПИСОК БРОНИРОВАНИЙ
-             ========================= -->
+        <!-- СПИСОК БРОНИРОВАНИЙ -->
 
         <div
           v-else
@@ -313,12 +297,12 @@
 
             <div class="booking-info">
 
-
               <!-- АВТОМОБИЛЬ -->
 
               <div class="booking-car">
 
                 {{ findCar(booking.carId)?.brand }}
+
                 {{ findCar(booking.carId)?.model }}
 
               </div>
@@ -370,6 +354,27 @@
 
         </div>
 
+
+        <!-- =========================
+             ПАГИНАЦИЯ
+             ========================= -->
+
+        <div
+          v-if="totalPages > 1"
+          class="bookings-pagination"
+        >
+
+          <q-pagination
+            v-model="currentPage"
+            :max="totalPages"
+            :max-pages="7"
+            boundary-numbers
+            direction-links
+            color="primary"
+          />
+
+        </div>
+
       </div>
 
     </div>
@@ -387,10 +392,7 @@
         class="payment-dialog"
       >
 
-
-        <!-- =========================
-             ЗАГОЛОВОК
-             ========================= -->
+        <!-- ЗАГОЛОВОК -->
 
         <q-card-section>
 
@@ -407,34 +409,25 @@
         </q-card-section>
 
 
-        <!-- =========================
-             ИНФОРМАЦИЯ
-             ========================= -->
+        <!-- ИНФОРМАЦИЯ -->
 
         <q-card-section
           v-if="createdBooking"
           class="q-pt-none"
         >
 
-
-          <!-- =========================
-               ДО ОПЛАТЫ
-               ========================= -->
+          <!-- ДО ОПЛАТЫ -->
 
           <template
             v-if="!paymentSuccess"
           >
 
             <p class="payment-text">
-
               Бронирование автомобиля создано.
-
             </p>
 
             <p class="payment-text">
-
               Хотите оплатить бронирование сейчас?
-
             </p>
 
 
@@ -480,9 +473,7 @@
           </template>
 
 
-          <!-- =========================
-               ПОСЛЕ УСПЕШНОЙ ОПЛАТЫ
-               ========================= -->
+          <!-- ПОСЛЕ УСПЕШНОЙ ОПЛАТЫ -->
 
           <template
             v-else
@@ -517,9 +508,7 @@
         </q-card-section>
 
 
-        <!-- =========================
-             КНОПКИ
-             ========================= -->
+        <!-- КНОПКИ -->
 
         <q-card-actions
           align="right"
@@ -572,7 +561,8 @@
 import {
   ref,
   computed,
-  onMounted
+  onMounted,
+  watch
 } from 'vue'
 
 import { useRoute } from 'vue-router'
@@ -624,8 +614,7 @@ import {
 // ROUTE
 // =========================
 
-const route =
-  useRoute()
+const route = useRoute()
 
 
 // =========================
@@ -640,19 +629,66 @@ const {
 } = useBookings()
 
 
-const visibleBookings =
-  computed(() =>
+// =========================
+// ПАГИНАЦИЯ
+// =========================
 
-    bookings.value.filter(
-      booking =>
+const currentPage = ref(1)
 
-        booking.status === 'PENDING' ||
+const bookingsPerPage = 5
 
-        booking.status === 'ACTIVE'
 
+const totalPages = computed(() => {
+
+  return Math.max(
+    1,
+    Math.ceil(
+      bookings.value.length /
+      bookingsPerPage
     )
-
   )
+
+})
+
+
+const visibleBookings = computed(() => {
+
+  const start =
+    (currentPage.value - 1) *
+    bookingsPerPage
+
+  const end =
+    start + bookingsPerPage
+
+  return bookings.value.slice(
+    start,
+    end
+  )
+
+})
+
+
+// =========================
+// ЕСЛИ УДАЛИЛИ ПОСЛЕДНЕЕ
+// БРОНИРОВАНИЕ НА СТРАНИЦЕ
+// =========================
+
+watch(
+  totalPages,
+  (newTotalPages) => {
+
+    if (
+      currentPage.value >
+      newTotalPages
+    ) {
+
+      currentPage.value =
+        newTotalPages
+
+    }
+
+  }
+)
 
 
 // =========================
@@ -671,11 +707,9 @@ const {
 
 const selectedCarId =
   ref(
-
     route.query.carId
       ? Number(route.query.carId)
       : null
-
   )
 
 
@@ -788,10 +822,7 @@ async function loadCars() {
 
     const response =
       await getCars({
-
-        size:
-          100
-
+        size: 100
       })
 
 
@@ -819,13 +850,9 @@ const {
   isStartDateAvailable,
   isEndDateAvailable
 } = useBookingCalendar(
-
   selectedCar,
-
   startDate,
-
   bookings
-
 )
 
 
@@ -847,11 +874,8 @@ const datesValid =
 
 
     return (
-
       new Date(endDate.value) >
-
       new Date(startDate.value)
-
     )
 
   })
@@ -874,11 +898,8 @@ const hasDateConflict =
       booking => {
 
         if (
-
           Number(booking.carId) !==
-
           Number(selectedCar.value.id)
-
         ) {
 
           return false
@@ -897,13 +918,11 @@ const hasDateConflict =
 
 
         return (
-
           startDate.value <
           booking.endDate &&
 
           endDate.value >
           booking.startDate
-
         )
 
       }
@@ -933,11 +952,8 @@ const rentalDays =
 
 
     return (
-
       end - start
-
     ) /
-
     (1000 * 60 * 60 * 24)
 
   })
@@ -956,11 +972,8 @@ const totalPrice =
 
 
     return (
-
       rentalDays.value *
-
       selectedCar.value.price
-
     )
 
   })
@@ -974,15 +987,10 @@ const canBook =
   computed(() => {
 
     return (
-
       selectedCar.value &&
-
       datesValid.value &&
-
       rentalDays.value > 0 &&
-
       !hasDateConflict.value
-
     )
 
   })
@@ -996,13 +1004,9 @@ const {
   addFutureBookingNotification,
   checkUpcomingBookings
 } = useBookingNotifications(
-
   bookings,
-
   notifications,
-
   addNotification
-
 )
 
 
@@ -1015,17 +1019,11 @@ const {
 } = useBookingActions({
 
   selectedCar,
-
   startDate,
-
   endDate,
-
   rentalDays,
-
   totalPrice,
-
   canBook,
-
   addBooking
 
 })
@@ -1058,6 +1056,13 @@ async function handleCreateBooking() {
 
     paymentDialog.value =
       true
+
+
+    /*
+     * После добавления нового бронирования
+     * возвращаем пользователя на первую страницу.
+     */
+    currentPage.value = 1
 
   } catch (error) {
 
@@ -1094,9 +1099,7 @@ async function payForBooking() {
 
     const response =
       await createPayment(
-
         createdBooking.value.id
-
       )
 
 
@@ -1106,24 +1109,25 @@ async function payForBooking() {
     )
 
 
-    // ==================================
     // ОПЛАТА УСПЕШНА
-    // ==================================
 
     paymentSuccess.value =
       true
 
 
-    // ==================================
     // ОБНОВЛЯЕМ БРОНИРОВАНИЯ
-    // ==================================
 
     await loadBookings()
 
 
-    // ==================================
-    // СОЗДАЁМ PUSH-УВЕДОМЛЕНИЕ
-    // ==================================
+    // НА ПЕРВУЮ СТРАНИЦУ
+
+    currentPage.value = 1
+
+
+    // =========================
+    // PUSH-УВЕДОМЛЕНИЕ
+    // =========================
 
     const car =
       findCar(
@@ -1165,9 +1169,9 @@ async function payForBooking() {
     })
 
 
-    // ==================================
-    // УВЕДОМЛЕНИЕ О ПРЕДСТОЯЩЕЙ АРЕНДЕ
-    // ==================================
+    // =========================
+    // ПРЕДСТОЯЩАЯ АРЕНДА
+    // =========================
 
     addFutureBookingNotification({
 
@@ -1185,9 +1189,9 @@ async function payForBooking() {
     })
 
 
-    // ==================================
-    // ОДНОВРЕМЕННО ПОКАЗЫВАЕМ QUASAR NOTIFY
-    // ==================================
+    // =========================
+    // QUASAR NOTIFY
+    // =========================
 
     const { Notify } =
       await import('quasar')
@@ -1223,10 +1227,6 @@ async function payForBooking() {
       error
     )
 
-
-    // ==================================
-    // ОПЛАТА НЕ ПРОШЛА
-    // ==================================
 
     const { Notify } =
       await import('quasar')
@@ -1267,9 +1267,7 @@ const {
 } = useBookingCancel({
 
   bookings,
-
   removeBooking,
-
   addNotification
 
 })
@@ -1283,7 +1281,8 @@ function findCar(carId) {
 
   return cars.value.find(
     car =>
-      Number(car.id) === Number(carId)
+      Number(car.id) ===
+      Number(carId)
   )
 
 }
@@ -1802,6 +1801,27 @@ h1 {
 
 
 /* =========================
+   ПАГИНАЦИЯ
+   ========================= */
+
+.bookings-pagination {
+
+  display:
+    flex;
+
+  justify-content:
+    center;
+
+  margin-top:
+    25px;
+
+  padding-bottom:
+    10px;
+
+}
+
+
+/* =========================
    ДИАЛОГ ОПЛАТЫ
    ========================= */
 
@@ -1963,3 +1983,4 @@ h1 {
 }
 
 </style>
+
