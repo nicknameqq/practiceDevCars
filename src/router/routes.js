@@ -48,6 +48,14 @@ const routes = [
             requiresAdmin: true
           }
         },
+        {
+          path: '/admin/reports',
+          component: () => import('pages/AdminReportsPage.vue'),
+          meta: {
+            requiresAuth: true,
+            requiresAdmin: true
+          }
+        },
       {
         path: 'favorites',
         component: () => import('pages/FavoritesPage.vue'),

@@ -59,6 +59,7 @@
           class="admin-card"
           flat
           clickable
+          @click="$router.push('/admin/reports')"
         >
           <q-icon
             name="assessment"

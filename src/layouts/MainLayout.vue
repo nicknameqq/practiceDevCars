@@ -262,7 +262,11 @@
 
             <template v-else>
 
-              <q-avatar size="36px">
+              <q-avatar
+              class="profile-av"
+                  clickable
+                  @click="$router.push('/profile')"
+                  size="36px">
                 <img
                   src="https://cdn.quasar.dev/img/avatar.png"
                 >
@@ -446,49 +450,6 @@
             </q-item-section>
           </q-item>
 
-        <!-- Отчёты -->
-
-        <q-item
-          clickable
-          v-if="isAdmin"
-          v-ripple
-          to="/reports"
-        >
-
-          <q-item-section avatar>
-
-            <q-icon name="bar_chart" />
-
-          </q-item-section>
-
-
-          <q-item-section>
-            Отчёты
-          </q-item-section>
-
-        </q-item>
-
-
-        <!-- Настройки -->
-
-        <q-item
-          clickable
-          v-ripple
-          to="/settings"
-        >
-
-          <q-item-section avatar>
-
-            <q-icon name="settings" />
-
-          </q-item-section>
-
-
-          <q-item-section>
-            Настройки
-          </q-item-section>
-
-        </q-item>
 
       </q-list>
 
@@ -945,7 +906,9 @@ function formatNotificationDate(date) {
 
 }
 
-
+.profile-av{
+  cursor: pointer;
+}
 /* =========================
    АДАПТИВНОСТЬ
    ========================= */
