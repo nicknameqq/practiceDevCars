@@ -15,6 +15,7 @@
           class="admin-card"
           flat
           clickable
+          @click="$router.push('/admin/cars')"
         >
           <q-icon
             name="directions_car"
@@ -121,14 +122,18 @@ h1 {
   border: 1px solid var(--q-border);
   border-radius: 18px;
 
+  cursor: pointer;
+
   transition:
-    transform .2s,
-    box-shadow .2s;
+    transform .2s ease,
+    box-shadow .2s ease,
+    border-color .2s ease;
 }
 
 .admin-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, .08);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, .10);
+  border-color: var(--q-primary);
 }
 
 .card-title {
