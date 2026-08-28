@@ -1,7 +1,12 @@
 import { api } from 'src/boot/axios'
 
-export function getBookings() {
-  return api.get('/bookings')
+export function getBookings(page = 0, size = 12) {
+  return api.get('/bookings', {
+    params: {
+      page,
+      size
+    }
+  })
 }
 
 export function createBooking(data) {
