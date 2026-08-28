@@ -1,9 +1,16 @@
 <template>
+
   <q-page class="bookings-page">
 
     <div class="page-content">
 
-      <h1>Бронирование автомобиля</h1>
+      <!-- =========================
+           ЗАГОЛОВОК
+           ========================= -->
+
+      <h1>
+        Бронирование автомобиля
+      </h1>
 
       <p class="subtitle">
         Выберите автомобиль и даты аренды
@@ -160,7 +167,11 @@
              ========================= -->
 
         <div
-          v-if="startDate && endDate && !datesValid"
+          v-if="
+            startDate &&
+            endDate &&
+            !datesValid
+          "
           class="date-error"
         >
           Дата окончания должна быть позже даты начала
@@ -243,7 +254,7 @@
           label="Подтвердить бронирование"
           unelevated
           :disable="!canBook"
-          @click="createBooking"
+          @click="handleCreateBooking"
         />
 
       </div>
@@ -303,6 +314,8 @@
             <div class="booking-info">
 
 
+              <!-- АВТОМОБИЛЬ -->
+
               <div class="booking-car">
 
                 {{ findCar(booking.carId)?.brand }}
@@ -311,14 +324,20 @@
               </div>
 
 
+              <!-- ДАТЫ -->
+
               <div class="booking-dates-info">
 
                 {{ booking.startDate }}
+
                 →
+
                 {{ booking.endDate }}
 
               </div>
 
+
+              <!-- ДНИ -->
 
               <div class="booking-days">
 
@@ -326,6 +345,8 @@
 
               </div>
 
+
+              <!-- ЦЕНА -->
 
               <div class="booking-price">
 
@@ -335,6 +356,8 @@
 
             </div>
 
+
+            <!-- ОТМЕНА -->
 
             <q-btn
               flat
@@ -351,6 +374,195 @@
 
     </div>
 
+
+    <!-- ==================================================
+         ДИАЛОГ ОПЛАТЫ
+         ================================================== -->
+
+    <q-dialog
+      v-model="paymentDialog"
+    >
+
+      <q-card
+        class="payment-dialog"
+      >
+
+
+        <!-- =========================
+             ЗАГОЛОВОК
+             ========================= -->
+
+        <q-card-section>
+
+          <div class="text-h6">
+
+            {{
+              paymentSuccess
+                ? 'Оплата прошла успешно'
+                : 'Бронирование создано'
+            }}
+
+          </div>
+
+        </q-card-section>
+
+
+        <!-- =========================
+             ИНФОРМАЦИЯ
+             ========================= -->
+
+        <q-card-section
+          v-if="createdBooking"
+          class="q-pt-none"
+        >
+
+
+          <!-- =========================
+               ДО ОПЛАТЫ
+               ========================= -->
+
+          <template
+            v-if="!paymentSuccess"
+          >
+
+            <p class="payment-text">
+
+              Бронирование автомобиля создано.
+
+            </p>
+
+            <p class="payment-text">
+
+              Хотите оплатить бронирование сейчас?
+
+            </p>
+
+
+            <!-- ИНФОРМАЦИЯ О БРОНИ -->
+
+            <div class="payment-booking-info">
+
+              <strong>
+
+                {{ findCar(createdBooking.carId)?.brand }}
+
+                {{ findCar(createdBooking.carId)?.model }}
+
+              </strong>
+
+
+              <span>
+
+                {{ createdBooking.startDate }}
+
+                →
+
+                {{ createdBooking.endDate }}
+
+              </span>
+
+
+              <span>
+
+                {{ createdBooking.days }} дн.
+
+              </span>
+
+
+              <strong>
+
+                {{ createdBooking.totalPrice }} ₴
+
+              </strong>
+
+            </div>
+
+          </template>
+
+
+          <!-- =========================
+               ПОСЛЕ УСПЕШНОЙ ОПЛАТЫ
+               ========================= -->
+
+          <template
+            v-else
+          >
+
+            <div class="payment-success">
+
+              <q-icon
+                name="check_circle"
+                size="60px"
+                color="positive"
+              />
+
+
+              <div class="payment-success-title">
+
+                Оплата успешно выполнена
+
+              </div>
+
+
+              <strong>
+
+                {{ createdBooking.totalPrice }} ₴
+
+              </strong>
+
+            </div>
+
+          </template>
+
+        </q-card-section>
+
+
+        <!-- =========================
+             КНОПКИ
+             ========================= -->
+
+        <q-card-actions
+          align="right"
+        >
+
+          <!-- ДО ОПЛАТЫ -->
+
+          <template
+            v-if="!paymentSuccess"
+          >
+
+            <q-btn
+              flat
+              label="Позже"
+              v-close-popup
+            />
+
+
+            <q-btn
+              unelevated
+              label="Оплатить"
+              :loading="paymentLoading"
+              @click="payForBooking"
+            />
+
+          </template>
+
+
+          <!-- ПОСЛЕ ОПЛАТЫ -->
+
+          <q-btn
+            v-else
+            unelevated
+            label="Закрыть"
+            v-close-popup
+          />
+
+        </q-card-actions>
+
+      </q-card>
+
+    </q-dialog>
+
   </q-page>
 </template>
 
@@ -365,13 +577,14 @@ import {
 
 import { useRoute } from 'vue-router'
 
-import {
-  useBookingCancel
-} from 'src/composables/useBookingCancel.js'
 
 // =========================
 // COMPOSABLES
 // =========================
+
+import {
+  useBookingCancel
+} from 'src/composables/useBookingCancel.js'
 
 import {
   useBookings
@@ -389,26 +602,30 @@ import {
   useBookingNotifications
 } from 'src/composables/useBookingNotifications.js'
 
-
 import {
   useBookingCalendar
 } from 'src/composables/useBookingsCalendar.js'
 
 
 // =========================
-// DATA
+// API
 // =========================
 
-import { getCars } from 'src/api/carsApi'
+import {
+  getCars
+} from 'src/api/carsApi'
+
+import {
+  createPayment
+} from 'src/api/paymentsApi'
 
 
 // =========================
-// UTILS
+// ROUTE
 // =========================
 
-
-
-const route = useRoute()
+const route =
+  useRoute()
 
 
 // =========================
@@ -422,12 +639,22 @@ const {
   loadBookings
 } = useBookings()
 
-const visibleBookings = computed(() =>
-  bookings.value.filter(booking =>
-    booking.status === 'PENDING' ||
-    booking.status === 'ACTIVE'
+
+const visibleBookings =
+  computed(() =>
+
+    bookings.value.filter(
+      booking =>
+
+        booking.status === 'PENDING' ||
+
+        booking.status === 'ACTIVE'
+
+    )
+
   )
-)
+
+
 // =========================
 // УВЕДОМЛЕНИЯ
 // =========================
@@ -442,85 +669,146 @@ const {
 // СОСТОЯНИЕ ФОРМЫ
 // =========================
 
-const selectedCarId = ref(
-  route.query.carId
-    ? Number(route.query.carId)
-    : null
-)
+const selectedCarId =
+  ref(
 
-const startDate = ref('')
+    route.query.carId
+      ? Number(route.query.carId)
+      : null
 
-const endDate = ref('')
-
-
-// =========================
-// МЕСЯЦ КАЛЕНДАРЯ END DATE
-// =========================
-
-const endDateDefaultMonth = computed(() => {
-
-  if (!startDate.value) {
-    return undefined
-  }
-
-
-  const start =
-    new Date(startDate.value)
-
-
-  const nextDay =
-    new Date(start)
-
-
-  nextDay.setDate(
-    start.getDate() + 1
   )
 
 
-  const year =
-    nextDay.getFullYear()
+const startDate =
+  ref('')
 
 
-  const month =
-    String(
-      nextDay.getMonth() + 1
-    ).padStart(2, '0')
+const endDate =
+  ref('')
 
 
-  return `${year}/${month}`
+// =========================
+// ОПЛАТА
+// =========================
 
-})
+const paymentDialog =
+  ref(false)
+
+
+const paymentLoading =
+  ref(false)
+
+
+const createdBooking =
+  ref(null)
+
+
+const paymentSuccess =
+  ref(false)
+
+
+// =========================
+// МЕСЯЦ END DATE
+// =========================
+
+const endDateDefaultMonth =
+  computed(() => {
+
+    if (!startDate.value) {
+      return undefined
+    }
+
+
+    const start =
+      new Date(startDate.value)
+
+
+    const nextDay =
+      new Date(start)
+
+
+    nextDay.setDate(
+      start.getDate() + 1
+    )
+
+
+    const year =
+      nextDay.getFullYear()
+
+
+    const month =
+      String(
+        nextDay.getMonth() + 1
+      ).padStart(2, '0')
+
+
+    return `${year}/${month}`
+
+  })
 
 
 // =========================
 // АВТОМОБИЛИ
 // =========================
-const cars = ref([])
 
-const selectedCar = computed(() => {
-  return cars.value.find(
-    car => car.id === selectedCarId.value
+const cars =
+  ref([])
+
+
+const selectedCar =
+  computed(() => {
+
+    return cars.value.find(
+      car =>
+        car.id === selectedCarId.value
+    )
+
+  })
+
+
+const carOptions =
+  computed(() =>
+
+    cars.value.map(car => ({
+
+      label:
+        `${car.brand} ${car.model} — ${car.price} ₴ / день`,
+
+      value:
+        car.id
+
+    }))
+
   )
-})
 
-const carOptions = computed(() =>
-  cars.value.map(car => ({
-    label: `${car.brand} ${car.model} — ${car.price} ₴ / день`,
-    value: car.id
-  }))
-)
 
 async function loadCars() {
-  try {
-    const response = await getCars({
-      size: 100
-    })
 
-    cars.value = response.data.content
+  try {
+
+    const response =
+      await getCars({
+
+        size:
+          100
+
+      })
+
+
+    cars.value =
+      response.data.content
+
   } catch (error) {
-    console.error('Failed to load cars:', error)
+
+    console.error(
+      'Failed to load cars:',
+      error
+    )
+
   }
+
 }
+
 
 // =========================
 // КАЛЕНДАРЬ
@@ -531,9 +819,13 @@ const {
   isStartDateAvailable,
   isEndDateAvailable
 } = useBookingCalendar(
+
   selectedCar,
+
   startDate,
+
   bookings
+
 )
 
 
@@ -541,125 +833,163 @@ const {
 // ПРОВЕРКА ДАТ
 // =========================
 
-const datesValid = computed(() => {
+const datesValid =
+  computed(() => {
 
-  if (
-    !startDate.value ||
-    !endDate.value
-  ) {
-    return false
-  }
-
-
-  return (
-    new Date(endDate.value) >
-    new Date(startDate.value)
-  )
-
-})
-
-
-const hasDateConflict = computed(() => {
-  if (
-    !selectedCar.value ||
-    !datesValid.value
-  ) {
-    return false
-  }
-
-  return bookings.value.some(booking => {
     if (
-      Number(booking.carId) !==
-      Number(selectedCar.value.id)
+      !startDate.value ||
+      !endDate.value
     ) {
+
       return false
+
     }
 
-    if (booking.status === 'CANCELLED') {
-      return false
-    }
 
     return (
-      startDate.value < booking.endDate &&
-      endDate.value > booking.startDate
+
+      new Date(endDate.value) >
+
+      new Date(startDate.value)
+
     )
+
   })
-})
+
+
+const hasDateConflict =
+  computed(() => {
+
+    if (
+      !selectedCar.value ||
+      !datesValid.value
+    ) {
+
+      return false
+
+    }
+
+
+    return bookings.value.some(
+      booking => {
+
+        if (
+
+          Number(booking.carId) !==
+
+          Number(selectedCar.value.id)
+
+        ) {
+
+          return false
+
+        }
+
+
+        if (
+          booking.status ===
+          'CANCELLED'
+        ) {
+
+          return false
+
+        }
+
+
+        return (
+
+          startDate.value <
+          booking.endDate &&
+
+          endDate.value >
+          booking.startDate
+
+        )
+
+      }
+    )
+
+  })
 
 
 // =========================
-// РАСЧЁТ СТОИМОСТИ
+// РАСЧЁТ ДНЕЙ
 // =========================
 
-const rentalDays = computed(() => {
+const rentalDays =
+  computed(() => {
 
-  if (!datesValid.value) {
-    return 0
-  }
-
-
-  const start =
-    new Date(startDate.value)
+    if (!datesValid.value) {
+      return 0
+    }
 
 
-  const end =
-    new Date(endDate.value)
+    const start =
+      new Date(startDate.value)
 
 
-  return (
-    end - start
-  ) /
-  (1000 * 60 * 60 * 24)
-
-})
+    const end =
+      new Date(endDate.value)
 
 
-const totalPrice = computed(() => {
+    return (
 
-  if (!selectedCar.value) {
-    return 0
-  }
+      end - start
 
+    ) /
 
-  return (
-    rentalDays.value *
-    selectedCar.value.price
-  )
+    (1000 * 60 * 60 * 24)
 
-})
-
-
-const canBook = computed(() => {
-
-  return (
-
-    selectedCar.value &&
-
-    datesValid.value &&
-
-    rentalDays.value > 0 &&
-
-    !hasDateConflict.value
-
-  )
-
-})
+  })
 
 
 // =========================
-// ДЕЙСТВИЯ БРОНИРОВАНИЯ
+// ИТОГОВАЯ ЦЕНА
 // =========================
-//
-// Здесь теперь только:
-// createBooking
-//
-// Уведомления о предстоящей аренде
-// находятся в useBookingNotifications.
 
+const totalPrice =
+  computed(() => {
+
+    if (!selectedCar.value) {
+      return 0
+    }
+
+
+    return (
+
+      rentalDays.value *
+
+      selectedCar.value.price
+
+    )
+
+  })
 
 
 // =========================
-// УВЕДОМЛЕНИЯ О ПРЕДСТОЯЩИХ БРОНИРОВАНИЯХ
+// МОЖНО ЛИ СОЗДАВАТЬ БРОНЬ
+// =========================
+
+const canBook =
+  computed(() => {
+
+    return (
+
+      selectedCar.value &&
+
+      datesValid.value &&
+
+      rentalDays.value > 0 &&
+
+      !hasDateConflict.value
+
+    )
+
+  })
+
+
+// =========================
+// БУДУЩИЕ БРОНИРОВАНИЯ
 // =========================
 
 const {
@@ -676,19 +1006,261 @@ const {
 )
 
 
+// =========================
+// ДЕЙСТВИЯ БРОНИРОВАНИЯ
+// =========================
+
 const {
   createBooking
 } = useBookingActions({
+
   selectedCar,
+
   startDate,
+
   endDate,
+
   rentalDays,
+
   totalPrice,
+
   canBook,
-  addBooking,
-  addNotification,
-  addFutureBookingNotification
+
+  addBooking
+
 })
+
+
+// =========================
+// СОЗДАНИЕ БРОНИ
+// =========================
+
+async function handleCreateBooking() {
+
+  try {
+
+    const booking =
+      await createBooking()
+
+
+    if (!booking) {
+      return
+    }
+
+
+    createdBooking.value =
+      booking
+
+
+    paymentSuccess.value =
+      false
+
+
+    paymentDialog.value =
+      true
+
+  } catch (error) {
+
+    console.error(
+      'Booking creation failed:',
+      error
+    )
+
+  }
+
+}
+
+
+// =========================
+// ОПЛАТА
+// =========================
+
+async function payForBooking() {
+
+  if (
+    !createdBooking.value
+  ) {
+
+    return
+
+  }
+
+
+  paymentLoading.value =
+    true
+
+
+  try {
+
+    const response =
+      await createPayment(
+
+        createdBooking.value.id
+
+      )
+
+
+    console.log(
+      'Payment created:',
+      response.data
+    )
+
+
+    // ==================================
+    // ОПЛАТА УСПЕШНА
+    // ==================================
+
+    paymentSuccess.value =
+      true
+
+
+    // ==================================
+    // ОБНОВЛЯЕМ БРОНИРОВАНИЯ
+    // ==================================
+
+    await loadBookings()
+
+
+    // ==================================
+    // СОЗДАЁМ PUSH-УВЕДОМЛЕНИЕ
+    // ==================================
+
+    const car =
+      findCar(
+        createdBooking.value.carId
+      )
+
+
+    const carName =
+      car
+        ? `${car.brand} ${car.model}`
+        : 'Автомобиль'
+
+
+    addNotification({
+
+      type:
+        'booking',
+
+      title:
+        'Бронирование создано',
+
+      message:
+        `${carName} — ` +
+        `${createdBooking.value.startDate} → ` +
+        `${createdBooking.value.endDate}`,
+
+      icon:
+        'event_available',
+
+      carId:
+        createdBooking.value.carId,
+
+      bookingStart:
+        createdBooking.value.startDate,
+
+      bookingEnd:
+        createdBooking.value.endDate
+
+    })
+
+
+    // ==================================
+    // УВЕДОМЛЕНИЕ О ПРЕДСТОЯЩЕЙ АРЕНДЕ
+    // ==================================
+
+    addFutureBookingNotification({
+
+      carId:
+        createdBooking.value.carId,
+
+      carName,
+
+      startDate:
+        createdBooking.value.startDate,
+
+      endDate:
+        createdBooking.value.endDate
+
+    })
+
+
+    // ==================================
+    // ОДНОВРЕМЕННО ПОКАЗЫВАЕМ QUASAR NOTIFY
+    // ==================================
+
+    const { Notify } =
+      await import('quasar')
+
+
+    Notify.create({
+
+      type:
+        'positive',
+
+      message:
+        'Бронирование создано',
+
+      caption:
+        `${carName} — оплачено`,
+
+      icon:
+        'event_available',
+
+      position:
+        'top-right',
+
+      timeout:
+        4000
+
+    })
+
+
+  } catch (error) {
+
+    console.error(
+      'Failed to create payment:',
+      error
+    )
+
+
+    // ==================================
+    // ОПЛАТА НЕ ПРОШЛА
+    // ==================================
+
+    const { Notify } =
+      await import('quasar')
+
+
+    Notify.create({
+
+      type:
+        'negative',
+
+      message:
+        'Не удалось оплатить бронирование',
+
+      position:
+        'top-right',
+
+      timeout:
+        4000
+
+    })
+
+  } finally {
+
+    paymentLoading.value =
+      false
+
+  }
+
+}
+
+
+// =========================
+// ОТМЕНА БРОНИРОВАНИЯ
+// =========================
 
 const {
   cancelBooking
@@ -701,26 +1273,34 @@ const {
   addNotification
 
 })
+
+
+// =========================
+// ПОИСК АВТОМОБИЛЯ
+// =========================
+
 function findCar(carId) {
+
   return cars.value.find(
-    car => car.id === carId
+    car =>
+      Number(car.id) === Number(carId)
   )
+
 }
-// =========================
-// ОТМЕНА БРОНИРОВАНИЯ
-// =========================
-
 
 
 // =========================
-// ПРОВЕРКА БУДУЩИХ БРОНИРОВАНИЙ
-// ПРИ ОТКРЫТИИ СТРАНИЦЫ
+// ЗАГРУЗКА
 // =========================
 
 onMounted(async () => {
+
   await loadCars()
+
   await loadBookings()
+
   checkUpcomingBookings()
+
 })
 
 </script>
@@ -1217,6 +1797,103 @@ h1 {
 
   font-weight:
     700;
+
+}
+
+
+/* =========================
+   ДИАЛОГ ОПЛАТЫ
+   ========================= */
+
+.payment-dialog {
+
+  width:
+    450px;
+
+  max-width:
+    90vw;
+
+  background:
+    var(--q-card);
+
+  color:
+    var(--q-text);
+
+}
+
+
+.payment-text {
+
+  margin:
+    0 0 10px;
+
+}
+
+
+.payment-booking-info {
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    10px;
+
+  padding:
+    15px;
+
+  margin-top:
+    18px;
+
+  border-radius:
+    10px;
+
+  background:
+    rgba(128, 128, 128, 0.08);
+
+}
+
+
+.payment-booking-info strong {
+
+  font-size:
+    18px;
+
+}
+
+
+.payment-success {
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  align-items:
+    center;
+
+  gap:
+    12px;
+
+  padding:
+    10px 0;
+
+  text-align:
+    center;
+
+}
+
+
+.payment-success-title {
+
+  font-size:
+    18px;
+
+  font-weight:
+    600;
 
 }
 
