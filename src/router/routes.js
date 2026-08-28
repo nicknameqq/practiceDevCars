@@ -41,6 +41,13 @@ const routes = [
             requiresAdmin: true
           }
         },
+        {
+          path: '/admin/bookings',
+          component: () => import('pages/AdminBookingsPage.vue'),
+          meta: {
+            requiresAdmin: true
+          }
+        },
       {
         path: 'favorites',
         component: () => import('pages/FavoritesPage.vue'),

@@ -450,6 +450,7 @@
 
         <q-item
           clickable
+          v-if="isAdmin"
           v-ripple
           to="/reports"
         >

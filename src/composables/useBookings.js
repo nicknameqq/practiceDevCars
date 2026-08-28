@@ -22,18 +22,22 @@ export function useBookings() {
     }
   }
   
-  async function addBooking(booking) {
-    try {
-      const response = await createBooking(booking)
+async function addBooking(booking) {
+  try {
+    const response = await createBooking(booking)
 
-      bookings.value.push(response.data)
+    await loadBookings()
 
-      return response.data
-    } catch (error) {
-      console.error('Failed to create booking:', error)
-      throw error
-    }
+    return response.data
+  } catch (error) {
+    console.error(
+      'Failed to create booking:',
+      error
+    )
+
+    throw error
   }
+}
 
 async function removeBooking(id) {
   try {

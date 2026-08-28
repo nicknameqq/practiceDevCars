@@ -37,6 +37,7 @@
           class="admin-card"
           flat
           clickable
+          @click="$router.push('/admin/bookings')"
         >
           <q-icon
             name="event"

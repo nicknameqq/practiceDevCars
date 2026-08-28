@@ -86,7 +86,7 @@
           <div class="cars-section">
 
             <div class="results-count">
-              Найдено автомобилей: {{ filteredCars.length }}
+              Найдено автомобилей: {{ totalElements }}
             </div>
 
             <h2>Доступные автомобили</h2>
@@ -126,6 +126,7 @@ const cars = ref([])
 const loading = ref(false)
 const currentPage = ref(1)
 const totalPages = ref(1)
+const totalElements = ref(0)
 const filteredCars = cars
 const transmission = ref(null)
 const appliedTransmission = ref(null)
@@ -176,6 +177,7 @@ async function loadCars() {
 
     cars.value = response.data.content
     totalPages.value = response.data.totalPages
+    totalElements.value = response.data.totalElements
   } catch (error) {
     console.error('Failed to load cars:', error)
   } finally {

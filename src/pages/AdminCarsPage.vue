@@ -1,39 +1,65 @@
 <template>
+
   <q-page class="admin-cars-page">
 
     <div class="page-content">
 
+      <!-- HEADER -->
+
       <div class="page-header">
+
         <div>
-          <h1>Управление автомобилями</h1>
+
+          <h1>
+            Управление автомобилями
+          </h1>
 
           <p class="subtitle">
             Добавление, редактирование и управление автомобилями
           </p>
+
         </div>
 
-        <q-btn
-          label="Добавить автомобиль"
-          icon="add"
-          unelevated
-          @click="openCreateDialog"
-        />
+
+        <div class="header-actions">
+
+          <q-btn
+            label="Добавить автомобиль"
+            icon="add"
+            unelevated
+            @click="openCreateDialog"
+          />
+
+          <q-btn
+            flat
+            icon="arrow_back"
+            label="Назад"
+            class="back-btn"
+            @click="$router.push('/admin')"
+          />
+
+        </div>
+
       </div>
 
 
       <!-- Загрузка -->
+
       <div
         v-if="loading"
         class="loading-container"
       >
+
         <q-spinner
           size="50px"
           color="primary"
         />
+
       </div>
 
 
       <!-- Автомобили -->
+
       <div
         v-else
         class="cars-list"
@@ -71,8 +97,9 @@
               </div>
 
               <q-badge
+                class="status-badge"
                 :color="getStatusColor(car.status)"
-                :label="car.status"
+                :label="getStatusLabel(car.status)"
               />
 
             </div>
@@ -80,20 +107,26 @@
           </div>
 
 
+          <!-- ACTIONS -->
+
           <div class="car-actions">
 
             <q-btn
               flat
+              dense
               icon="edit"
               label="Редактировать"
+              class="action-btn"
               @click="openEditDialog(car)"
             />
 
             <q-btn
               flat
+              dense
               color="negative"
               icon="delete"
               label="Удалить"
+              class="action-btn delete-btn"
               @click="handleDelete(car)"
             />
 
@@ -105,10 +138,12 @@
 
 
       <!-- Нет автомобилей -->
+
       <div
         v-if="!loading && cars.length === 0"
         class="empty-state"
       >
+
         <q-icon
           name="directions_car"
           size="60px"
@@ -117,13 +152,60 @@
         <h2>
           Автомобилей пока нет
         </h2>
+
+      </div>
+
+
+      <!-- PAGINATION -->
+
+      <div
+        v-if="totalPages > 1 && !loading"
+        class="pagination-wrapper"
+      >
+
+        <q-pagination
+          v-model="currentPage"
+          :max="totalPages"
+          :max-pages="7"
+          direction-links
+          boundary-links
+          @update:model-value="loadCars"
+        />
+
+      </div>
+
+
+      <!-- PAGINATION INFO -->
+
+      <div
+        v-if="totalElements > 0 && !loading"
+        class="pagination-info"
+      >
+
+        Показано
+
+        {{ (currentPage - 1) * pageSize + 1 }}
+
+        —
+
+        {{
+          Math.min(
+            currentPage * pageSize,
+            totalElements
+          )
+        }}
+
+        из
+
+        {{ totalElements }}
+
       </div>
 
     </div>
 
 
     <!-- =========================
-         ДИАЛОГ СОЗДАНИЯ / РЕДАКТИРОВАНИЯ
+         ДИАЛОГ
          ========================= -->
 
     <q-dialog v-model="dialogVisible">
@@ -133,10 +215,13 @@
         <q-card-section>
 
           <div class="text-h6">
-            {{ editingCar
-              ? 'Редактировать автомобиль'
-              : 'Добавить автомобиль'
+
+            {{
+              editingCar
+                ? 'Редактировать автомобиль'
+                : 'Добавить автомобиль'
             }}
+
           </div>
 
         </q-card-section>
@@ -145,22 +230,26 @@
         <q-card-section>
 
           <q-form
-            @submit.prevent="saveCar"
             class="form"
+            @submit.prevent="saveCar"
           >
 
             <q-input
               v-model="form.brand"
               label="Марка"
               outlined
-              :rules="[val => !!val || 'Введите марку']"
+              :rules="[
+                val => !!val || 'Введите марку'
+              ]"
             />
 
             <q-input
               v-model="form.model"
               label="Модель"
               outlined
-              :rules="[val => !!val || 'Введите модель']"
+              :rules="[
+                val => !!val || 'Введите модель'
+              ]"
             />
 
             <q-input
@@ -168,7 +257,9 @@
               label="Год"
               type="number"
               outlined
-              :rules="[val => !!val || 'Введите год']"
+              :rules="[
+                val => !!val || 'Введите год'
+              ]"
             />
 
             <q-input
@@ -182,7 +273,10 @@
               label="Цена за день"
               type="number"
               outlined
-              :rules="[val => val > 0 || 'Цена должна быть больше 0']"
+              :rules="[
+                val => val > 0 ||
+                'Цена должна быть больше 0'
+              ]"
             />
 
             <q-input
@@ -225,7 +319,6 @@
               map-options
             />
 
-
             <div class="dialog-actions">
 
               <q-btn
@@ -252,6 +345,7 @@
     </q-dialog>
 
   </q-page>
+
 </template>
 
 
@@ -280,6 +374,23 @@ const dialogVisible = ref(false)
 const editingCar = ref(null)
 
 
+/*
+ * PAGINATION
+ */
+
+const currentPage = ref(1)
+
+const pageSize = 12
+
+const totalPages = ref(0)
+
+const totalElements = ref(0)
+
+
+/*
+ * FORM
+ */
+
 const form = ref({
   brand: '',
   model: '',
@@ -294,49 +405,68 @@ const form = ref({
 })
 
 
+/*
+ * OPTIONS
+ */
+
 const transmissionOptions = [
+
   {
     label: 'Автомат',
     value: 'AUTOMATIC'
   },
+
   {
     label: 'Механика',
     value: 'MANUAL'
   }
+
 ]
 
 
 const fuelOptions = [
+
   {
     label: 'Бензин',
     value: 'PETROL'
   },
+
   {
     label: 'Дизель',
     value: 'DIESEL'
   },
+
   {
     label: 'Электро',
     value: 'ELECTRIC'
   },
+
   {
     label: 'Гибрид',
     value: 'HYBRID'
   }
+
 ]
 
 
 const statusOptions = [
+
   {
     label: 'Доступен',
     value: 'AVAILABLE'
   },
+
   {
     label: 'Недоступен',
     value: 'UNAVAILABLE'
   }
+
 ]
 
+
+/*
+ * LOAD CARS
+ */
 
 async function loadCars() {
 
@@ -344,11 +474,42 @@ async function loadCars() {
 
   try {
 
-    const response = await getCars({
-      size: 100
-    })
+    /*
+     * UI pages start from 1.
+     *
+     * Spring Pageable pages start from 0.
+     *
+     * Therefore:
+     *
+     * UI 1 -> backend 0
+     * UI 2 -> backend 1
+     * UI 3 -> backend 2
+     */
 
-    cars.value = response.data.content
+    const response =
+      await getCars({
+
+        page: currentPage.value - 1,
+
+        size: pageSize
+
+      })
+
+
+    const data =
+      response.data
+
+
+    cars.value =
+      data.content
+
+
+    totalPages.value =
+      data.totalPages
+
+
+    totalElements.value =
+      data.totalElements
 
   } catch (error) {
 
@@ -366,11 +527,16 @@ async function loadCars() {
 }
 
 
+/*
+ * CREATE
+ */
+
 function openCreateDialog() {
 
   editingCar.value = null
 
   form.value = {
+
     brand: '',
     model: '',
     year: null,
@@ -381,6 +547,7 @@ function openCreateDialog() {
     fuel: null,
     seats: null,
     status: 'AVAILABLE'
+
   }
 
   dialogVisible.value = true
@@ -388,11 +555,16 @@ function openCreateDialog() {
 }
 
 
+/*
+ * EDIT
+ */
+
 function openEditDialog(car) {
 
   editingCar.value = car
 
   form.value = {
+
     brand: car.brand,
     model: car.model,
     year: car.year,
@@ -403,12 +575,17 @@ function openEditDialog(car) {
     fuel: car.fuel,
     seats: car.seats,
     status: car.status
+
   }
 
   dialogVisible.value = true
 
 }
 
+
+/*
+ * SAVE
+ */
 
 async function saveCar() {
 
@@ -424,24 +601,37 @@ async function saveCar() {
           form.value
         )
 
+
       const index =
         cars.value.findIndex(
           car =>
             car.id === editingCar.value.id
         )
 
+
       if (index !== -1) {
-        cars.value[index] = response.data
+
+        cars.value[index] =
+          response.data
+
       }
 
     } else {
 
-      const response =
-        await createCar(form.value)
+      await createCar(form.value)
 
-      cars.value.push(response.data)
+      /*
+       * После создания автомобиля
+       * перезагружаем текущую страницу.
+       *
+       * Это важно для правильной
+       * работы pagination.
+       */
+
+      await loadCars()
 
     }
+
 
     dialogVisible.value = false
 
@@ -461,6 +651,10 @@ async function saveCar() {
 }
 
 
+/*
+ * DELETE
+ */
+
 async function handleDelete(car) {
 
   const confirmed =
@@ -468,23 +662,33 @@ async function handleDelete(car) {
       `Удалить ${car.brand} ${car.model}?`
     )
 
+
   if (!confirmed) {
     return
   }
 
+
   try {
 
-    const response =
-      await deleteCar(car.id)
+    await deleteCar(car.id)
 
-    const index =
-      cars.value.findIndex(
-        item => item.id === car.id
-      )
+    /*
+     * Если после удаления
+     * текущая страница стала пустой,
+     * переходим на предыдущую страницу.
+     */
 
-    if (index !== -1) {
-      cars.value[index] = response.data
+    if (
+      cars.value.length === 1 &&
+      currentPage.value > 1
+    ) {
+
+      currentPage.value--
+
     }
+
+
+    await loadCars()
 
   } catch (error) {
 
@@ -497,6 +701,10 @@ async function handleDelete(car) {
 
 }
 
+
+/*
+ * STATUS COLOR
+ */
 
 function getStatusColor(status) {
 
@@ -513,7 +721,32 @@ function getStatusColor(status) {
 }
 
 
-onMounted(loadCars)
+/*
+ * STATUS LABEL
+ */
+
+function getStatusLabel(status) {
+
+  if (status === 'AVAILABLE') {
+    return 'Доступен'
+  }
+
+  if (status === 'BOOKED') {
+    return 'Забронирован'
+  }
+
+  if (status === 'UNAVAILABLE') {
+    return 'Недоступен'
+  }
+
+  return status
+
+}
+
+
+onMounted(
+  loadCars
+)
 
 </script>
 
@@ -521,174 +754,394 @@ onMounted(loadCars)
 <style scoped>
 
 .admin-cars-page {
+
   min-height: 100%;
-  background: var(--q-background);
+
+  background:
+    var(--q-background);
+
 }
 
 
 .page-content {
+
   max-width: 1100px;
+
   margin: 0 auto;
+
   padding: 40px 24px;
+
 }
 
+
+/* =========================
+   HEADER
+   ========================= */
 
 .page-header {
+
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
+
   gap: 20px;
+
   margin-bottom: 30px;
+
 }
 
 
+.header-actions {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+}
+
+
+.back-btn {
+
+  font-weight: 600;
+
+}
+
+
+/* =========================
+   TITLE
+   ========================= */
+
 h1 {
+
   margin: 0;
+
   font-size: 34px;
+
   font-weight: 800;
+
 }
 
 
 .subtitle {
+
   margin: 8px 0 0;
+
   opacity: .65;
+
 }
 
+
+/* =========================
+   LOADING
+   ========================= */
 
 .loading-container {
+
   display: flex;
+
   justify-content: center;
+
   padding: 80px 0;
+
 }
 
 
+/* =========================
+   CARS
+   ========================= */
+
 .cars-list {
+
   display: flex;
+
   flex-direction: column;
+
   gap: 15px;
+
 }
 
 
 .car-item {
+
   padding: 20px;
 
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
 
   gap: 20px;
 
-  background: var(--q-card);
-  color: var(--q-text);
+  background:
+    var(--q-card);
 
-  border: 1px solid var(--q-border);
+  color:
+    var(--q-text);
+
+  border:
+    1px solid
+    var(--q-border);
+
   border-radius: 16px;
+
 }
 
 
 .car-info {
+
   display: flex;
+
   align-items: center;
+
   gap: 20px;
+
 }
 
 
 .car-image {
+
   width: 180px;
+
   border-radius: 12px;
+
 }
 
 
 .car-details {
+
   display: flex;
+
   flex-direction: column;
+
+  align-items: flex-start;
+
   gap: 7px;
+
 }
 
 
 .car-title {
+
   font-size: 21px;
+
   font-weight: 800;
+
 }
 
 
 .car-data {
+
   opacity: .65;
+
 }
 
 
 .car-price {
+
   font-size: 18px;
+
   font-weight: 700;
+
 }
 
+
+/* =========================
+   STATUS
+   ========================= */
+
+.status-badge {
+
+  padding: 5px 10px;
+
+  border-radius: 7px;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+}
+
+
+/* =========================
+   ACTIONS
+   ========================= */
 
 .car-actions {
+
   display: flex;
-  gap: 5px;
+
+  align-items: center;
+
+  gap: 4px;
+
 }
 
 
-.empty-state {
+.action-btn {
+
+  min-height: 32px;
+
+  padding: 4px 9px;
+
+  font-size: 13px;
+
+  font-weight: 900;
+
+}
+
+
+.delete-btn {
+
+  font-weight: 900;
+
+}
+
+
+/* =========================
+   PAGINATION
+   ========================= */
+
+.pagination-wrapper {
+
+  display: flex;
+
+  justify-content: center;
+
+  margin-top: 25px;
+
+}
+
+
+.pagination-info {
+
+  margin-top: 12px;
+
   text-align: center;
+
+  font-size: 13px;
+
+  opacity: .55;
+
+}
+
+
+/* =========================
+   EMPTY
+   ========================= */
+
+.empty-state {
+
+  text-align: center;
+
   padding: 80px 20px;
+
   opacity: .6;
+
 }
 
 
 .empty-state h2 {
+
   margin-top: 15px;
+
 }
 
 
+/* =========================
+   DIALOG
+   ========================= */
+
 .car-dialog {
+
   width: 550px;
+
   max-width: 90vw;
+
 }
 
 
 .form {
+
   display: flex;
+
   flex-direction: column;
+
   gap: 15px;
+
 }
 
 
 .dialog-actions {
+
   display: flex;
+
   justify-content: flex-end;
+
   gap: 10px;
+
   margin-top: 10px;
+
 }
 
+
+/* =========================
+   MOBILE
+   ========================= */
 
 @media (max-width: 700px) {
 
   .page-header {
+
     flex-direction: column;
+
     align-items: stretch;
+
+  }
+
+
+  .header-actions {
+
+    justify-content: space-between;
+
   }
 
 
   .car-item {
+
     flex-direction: column;
+
     align-items: stretch;
+
   }
 
 
   .car-info {
+
     flex-direction: column;
+
     align-items: stretch;
+
   }
 
 
   .car-image {
+
     width: 100%;
+
   }
 
 
   .car-actions {
+
     justify-content: flex-end;
+
   }
 
 }
