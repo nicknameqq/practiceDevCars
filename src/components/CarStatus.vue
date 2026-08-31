@@ -22,16 +22,16 @@ const props = defineProps({
 const statusText = computed(() => {
   switch (props.status) {
     case 'available':
-      return 'Доступен'
+      return 'Доступне'
 
     case 'booked':
-      return 'Забронирован'
+      return 'Заброньоване'
 
     case 'unavailable':
-      return 'Недоступен'
+      return 'Недоступне'
 
     default:
-      return 'Неизвестный статус'
+      return 'Невідомий статус'
   }
 })
 </script>

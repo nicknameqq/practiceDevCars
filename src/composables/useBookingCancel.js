@@ -31,7 +31,7 @@ export function useBookingCancel({
   const carName =
     car
       ? `${car.brand} ${car.model}`
-      : 'Автомобиль'
+      : 'Авто'
 
 
   await removeBooking(id)
@@ -39,7 +39,7 @@ export function useBookingCancel({
 
   addNotification({
     type: 'booking_cancelled',
-    title: 'Бронирование отменено',
+    title: 'Бронювання скасовано',
     message:
       `${carName} — ` +
       `${booking.startDate} → ` +
@@ -53,7 +53,7 @@ export function useBookingCancel({
 
   Notify.create({
     type: 'warning',
-    message: 'Бронирование отменено',
+    message: 'Бронювання скасовано',
     caption: carName,
     icon: 'event_busy',
     position: 'top-right',

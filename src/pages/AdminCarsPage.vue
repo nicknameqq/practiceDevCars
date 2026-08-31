@@ -11,11 +11,11 @@
         <div>
 
           <h1>
-            Управление автомобилями
+            Управління авто
           </h1>
 
           <p class="subtitle">
-            Добавление, редактирование и управление автомобилями
+            Додавання, редагування та управління авто
           </p>
 
         </div>
@@ -24,7 +24,7 @@
         <div class="header-actions">
 
           <q-btn
-            label="Добавить автомобиль"
+            label="Додати авто"
             icon="add"
             unelevated
             @click="openCreateDialog"
@@ -115,7 +115,7 @@
               flat
               dense
               icon="edit"
-              label="Редактировать"
+              label="Редагувати"
               class="action-btn"
               @click="openEditDialog(car)"
             />
@@ -125,7 +125,7 @@
               dense
               color="negative"
               icon="delete"
-              label="Удалить"
+              label="Видалити"
               class="action-btn delete-btn"
               @click="handleDelete(car)"
             />
@@ -150,7 +150,7 @@
         />
 
         <h2>
-          Автомобилей пока нет
+          Авто ще немає
         </h2>
 
       </div>
@@ -218,8 +218,8 @@
 
             {{
               editingCar
-                ? 'Редактировать автомобиль'
-                : 'Добавить автомобиль'
+                ? 'Редагувати авто'
+                : 'Додати авто'
             }}
 
           </div>
@@ -239,7 +239,7 @@
               label="Марка"
               outlined
               :rules="[
-                val => !!val || 'Введите марку'
+                val => !!val || 'Уведіть марку'
               ]"
             />
 
@@ -248,7 +248,7 @@
               label="Модель"
               outlined
               :rules="[
-                val => !!val || 'Введите модель'
+                val => !!val || 'Уведіть модель'
               ]"
             />
 
@@ -258,7 +258,7 @@
               type="number"
               outlined
               :rules="[
-                val => !!val || 'Введите год'
+                val => !!val || 'Уведіть рік'
               ]"
             />
 
@@ -270,18 +270,18 @@
 
             <q-input
               v-model.number="form.price"
-              label="Цена за день"
+              label="Ціна за день"
               type="number"
               outlined
               :rules="[
                 val => val > 0 ||
-                'Цена должна быть больше 0'
+                'Ціна має бути більше 0'
               ]"
             />
 
             <q-input
               v-model="form.image"
-              label="URL изображения"
+              label="URL зображення"
               outlined
             />
 
@@ -305,7 +305,7 @@
 
             <q-input
               v-model.number="form.seats"
-              label="Количество мест"
+              label="Кількість місць"
               type="number"
               outlined
             />
@@ -322,13 +322,13 @@
             <div class="dialog-actions">
 
               <q-btn
-                label="Отмена"
+                label="Відмінити"
                 flat
                 v-close-popup
               />
 
               <q-btn
-                label="Сохранить"
+                label="Зберегти"
                 type="submit"
                 unelevated
                 :loading="saving"
@@ -452,12 +452,12 @@ const fuelOptions = [
 const statusOptions = [
 
   {
-    label: 'Доступен',
+    label: 'Доступне',
     value: 'AVAILABLE'
   },
 
   {
-    label: 'Недоступен',
+    label: 'Недоступне',
     value: 'UNAVAILABLE'
   }
 

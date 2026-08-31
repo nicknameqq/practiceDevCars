@@ -5,7 +5,7 @@
 
       <q-btn
         flat
-        label="← Назад к автомобилям"
+        label="← Назад до авто"
         :to="'/'"
         class="back-button"
       />
@@ -46,7 +46,7 @@
             </div>
 
             <div class="characteristic">
-                <span>Год выпуска</span>
+                <span>Рік випуску</span>
                 <strong>{{ car.year }}</strong>
             </div>
 
@@ -61,12 +61,12 @@
             </div>
 
             <div class="characteristic">
-                <span>Количество мест</span>
+                <span>Кількість місць</span>
                 <strong>{{ car.seats }}</strong>
             </div>
 
             <div class="characteristic">
-                <span>Стоимость</span>
+                <span>Ціна</span>
                 <strong>{{ car.price }} ₴ / день</strong>
             </div>
 
@@ -79,10 +79,10 @@
 
           <q-btn
               :label="getCarStatus(car) === 'available'
-                ? 'Забронировать'
+                ? 'Забронювати'
                 : getCarStatus(car) === 'booked'
-                  ? 'Автомобиль забронирован'
-                  : 'Автомобиль недоступен'"
+                  ? 'Авто заброньоване'
+                  : 'Авто недоступне'"
               unelevated
               class="booking-button"
               :disable="getCarStatus(car) !== 'available'"

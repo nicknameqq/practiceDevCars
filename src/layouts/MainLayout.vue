@@ -54,7 +54,11 @@
 
         <div class="header-actions">
 
-
+          <q-btn      
+              flat
+              label="м. Дніпро, Короленка, 2а"
+              icon="contacts"
+            />
           <!-- =========================
                УВЕДОМЛЕНИЯ
                ========================= -->
@@ -97,7 +101,7 @@
                 <div class="notifications-header">
 
                   <div class="notifications-title">
-                    Уведомления
+                    Сповіщення
                   </div>
 
 
@@ -111,7 +115,7 @@
                       flat
                       dense
                       size="sm"
-                      label="Прочитать все"
+                      label="Прочитати все"
                       @click.stop="markAllAsRead"
                     />
 
@@ -129,7 +133,7 @@
                     >
 
                       <q-tooltip>
-                        Удалить все уведомления
+                        Видалити всі повідомлення
                       </q-tooltip>
 
                     </q-btn>
@@ -157,7 +161,7 @@
                   />
 
                   <div>
-                    Уведомлений пока нет
+                    Сповіщень поки немає
                   </div>
 
                 </div>
@@ -244,7 +248,7 @@
           <!-- =========================
                ПЕРЕКЛЮЧЕНИЕ ТЕМЫ
                ========================= -->
-
+        
      
             <ThemeToggle />
 
@@ -255,7 +259,7 @@
             <q-btn
               v-if="!isAuthenticated"
               flat
-              label="Войти"
+              label="Увійти"
               icon="login"
               @click="router.push('/login')"
             />
@@ -268,13 +272,13 @@
                   @click="$router.push('/profile')"
                   size="36px">
                 <img
-                  src="https://cdn.quasar.dev/img/avatar.png"
+                  src="https://cdn.quasar.dev/img/parallax2.jpg"
                 >
               </q-avatar>
 
               <q-btn
                 flat
-                label="Выйти"
+                label="Вихід"
                 icon="logout"
                 @click="handleLogout"
               />
@@ -326,7 +330,7 @@
 
 
           <q-item-section>
-            Главная
+            Головна
           </q-item-section>
 
         </q-item>
@@ -348,7 +352,7 @@
 
 
           <q-item-section>
-            Автомобили
+            Авто
           </q-item-section>
 
         </q-item>
@@ -370,7 +374,7 @@
 
 
           <q-item-section>
-            Бронирования
+            Бронювання
           </q-item-section>
 
         </q-item>
@@ -392,7 +396,7 @@
 
 
           <q-item-section>
-            Избранное
+            Обране
           </q-item-section>
 
 
@@ -430,7 +434,7 @@
 
 
           <q-item-section>
-            Личный кабинет
+            Персональний кабінет
           </q-item-section>
 
         </q-item>
@@ -446,7 +450,7 @@
             </q-item-section>
 
             <q-item-section>
-              Админ-панель
+              Адмін-панель
             </q-item-section>
           </q-item>
 

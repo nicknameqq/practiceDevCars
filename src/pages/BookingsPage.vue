@@ -9,11 +9,11 @@
            ========================= -->
 
       <h1>
-        Бронирование автомобиля
+        Бронювання авто
       </h1>
 
       <p class="subtitle">
-        Выберите автомобиль и даты аренды
+        Оберіть авто для бронювання
       </p>
 
 
@@ -40,7 +40,7 @@
         <div class="booking-section">
 
           <div class="section-title">
-            Автомобиль
+            Авто
           </div>
 
           <q-select
@@ -49,7 +49,7 @@
             :options="carOptions"
             emit-value
             map-options
-            label="Выберите автомобиль"
+            label="Оберіть авто"
           />
 
         </div>
@@ -64,14 +64,14 @@
           <div class="booking-section">
 
             <div class="section-title">
-              Дата начала
+              Дата початку
             </div>
 
             <q-input
               outlined
               v-model="startDate"
               readonly
-              label="Выберите дату"
+              label="Оберіть дату"
             >
 
               <template v-slot:append>
@@ -111,14 +111,14 @@
           <div class="booking-section">
 
             <div class="section-title">
-              Дата окончания
+              Дата кінця
             </div>
 
             <q-input
               outlined
               v-model="endDate"
               readonly
-              label="Выберите дату"
+              label="Оберіть дату"
             >
 
               <template v-slot:append>
@@ -166,7 +166,7 @@
           "
           class="date-error"
         >
-          Дата окончания должна быть позже даты начала
+          Дата кінця має бути пізніше, ніж дата початку
         </div>
 
 
@@ -180,7 +180,7 @@
           <div class="summary-row">
 
             <span>
-              Автомобиль
+              Авто
             </span>
 
             <strong>
@@ -194,7 +194,7 @@
           <div class="summary-row">
 
             <span>
-              Цена за день
+              Ціна за день
             </span>
 
             <strong>
@@ -207,7 +207,7 @@
           <div class="summary-row">
 
             <span>
-              Количество дней
+              Кількість днів
             </span>
 
             <strong>
@@ -223,7 +223,7 @@
           <div class="total-row">
 
             <span>
-              Итого
+              Сумарно
             </span>
 
             <strong>
@@ -239,7 +239,7 @@
 
         <q-btn
           class="booking-button"
-          label="Подтвердить бронирование"
+          label="Підтвердити бронювання"
           unelevated
           :disable="!canBook"
           @click="handleCreateBooking"
@@ -255,7 +255,7 @@
       <div class="my-bookings">
 
         <h2>
-          Мои бронирования
+          Мої бронювання
         </h2>
 
 
@@ -346,7 +346,7 @@
             <q-btn
               flat
               color="negative"
-              label="Отменить"
+              label="Скасувати"
               @click="cancelBooking(booking.id)"
             />
 
@@ -400,8 +400,8 @@
 
             {{
               paymentSuccess
-                ? 'Оплата прошла успешно'
-                : 'Бронирование создано'
+                ? 'Оплата пройшла успішно'
+                : 'Бронювання створено'
             }}
 
           </div>
@@ -423,11 +423,11 @@
           >
 
             <p class="payment-text">
-              Бронирование автомобиля создано.
+              Бронювання авто створено.
             </p>
 
             <p class="payment-text">
-              Хотите оплатить бронирование сейчас?
+              Бажаєте оплатити бронювання зараз?
             </p>
 
 
@@ -490,7 +490,7 @@
 
               <div class="payment-success-title">
 
-                Оплата успешно выполнена
+                Оплату виконано успішно
 
               </div>
 
@@ -522,14 +522,14 @@
 
             <q-btn
               flat
-              label="Позже"
+              label="Пізніше"
               v-close-popup
             />
 
 
             <q-btn
               unelevated
-              label="Оплатить"
+              label="Оплатити"
               :loading="paymentLoading"
               @click="payForBooking"
             />
@@ -542,7 +542,7 @@
           <q-btn
             v-else
             unelevated
-            label="Закрыть"
+            label="Закрити"
             v-close-popup
           />
 
@@ -1147,7 +1147,7 @@ async function payForBooking() {
         'booking',
 
       title:
-        'Бронирование создано',
+        'Бронювання створено',
 
       message:
         `${carName} — ` +
@@ -1203,10 +1203,10 @@ async function payForBooking() {
         'positive',
 
       message:
-        'Бронирование создано',
+        'Бронювання створено',
 
       caption:
-        `${carName} — оплачено`,
+        `${carName} — сплачено`,
 
       icon:
         'event_available',
@@ -1238,7 +1238,7 @@ async function payForBooking() {
         'negative',
 
       message:
-        'Не удалось оплатить бронирование',
+        'Не вдалося оплатити бронювання',
 
       position:
         'top-right',

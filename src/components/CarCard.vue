@@ -47,7 +47,7 @@
       </div>
 
       <q-btn
-        label="Подробнее"
+        label="Більше"
         unelevated
         rounded
         :to="`/cars/${car.id}`"

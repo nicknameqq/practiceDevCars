@@ -11,11 +11,11 @@
         <div>
 
           <h1>
-            Отчёты
+            Звіти
           </h1>
 
           <p class="subtitle">
-            Статистика и аналитика сервиса
+            Статистика й аналітика сервісу
           </p>
 
         </div>
@@ -25,7 +25,7 @@
           <q-btn
             flat
             icon="refresh"
-            label="Обновить"
+            label="Оновити"
             :loading="loading"
             @click="loadReport"
           />
@@ -74,7 +74,7 @@
         </div>
 
         <q-btn
-          label="Повторить"
+          label="Повторити"
           unelevated
           @click="loadReport"
         />
@@ -108,7 +108,7 @@
             <div class="stat-info">
 
               <span class="stat-label">
-                Пользователи
+                Користувачі
               </span>
 
               <strong class="stat-value">
@@ -135,7 +135,7 @@
             <div class="stat-info">
 
               <span class="stat-label">
-                Автомобили
+                Авто
               </span>
 
               <strong class="stat-value">
@@ -162,7 +162,7 @@
             <div class="stat-info">
 
               <span class="stat-label">
-                Бронирования
+                Бронювання
               </span>
 
               <strong class="stat-value">
@@ -189,7 +189,7 @@
             <div class="stat-info">
 
               <span class="stat-label">
-                Общая выручка
+                Виручка 
               </span>
 
               <strong class="stat-value">
@@ -215,11 +215,11 @@
             <div>
 
               <h2>
-                Бронирования
+                Бронювання
               </h2>
 
               <p>
-                Распределение бронирований по статусам
+                Розподіл бронювань за статусами
               </p>
 
             </div>
@@ -236,7 +236,7 @@
               <div class="status-info">
 
                 <span>
-                  Ожидают
+                  Очікують
                 </span>
 
                 <strong>
@@ -255,7 +255,7 @@
               <div class="status-info">
 
                 <span>
-                  Активные
+                  Активні
                 </span>
 
                 <strong>
@@ -274,7 +274,7 @@
               <div class="status-info">
 
                 <span>
-                  Завершённые
+                  Завершені
                 </span>
 
                 <strong>
@@ -293,7 +293,7 @@
               <div class="status-info">
 
                 <span>
-                  Отменённые
+                  Скасовані
                 </span>
 
                 <strong>
@@ -323,7 +323,7 @@
           <div class="summary-row">
 
             <span>
-              Завершённых бронирований
+              Завершені бронювання
             </span>
 
             <strong>
@@ -335,7 +335,7 @@
           <div class="summary-row">
 
             <span>
-              Отменённых бронирований
+              Скасовані бронювання
             </span>
 
             <strong>
@@ -347,7 +347,7 @@
           <div class="summary-row">
 
             <span>
-              Активных бронирований
+              Активні бронювання
             </span>
 
             <strong>

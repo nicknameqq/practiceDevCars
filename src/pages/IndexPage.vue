@@ -3,24 +3,24 @@
 
     <div class="page-content">
 
-      <h1>Аренда автомобилей</h1>
+      <h1>Аренда авто</h1>
 
       <p class="subtitle">
-        Выберите автомобиль для вашей поездки
+        Оберіть авто для вашої подорожі
       </p>
 
       <div class="filter-card">
 
         <div class="filter-item">
           <div class="filter-label">
-            Марка автомобиля
+            Марка авто
           </div>
 
           <q-select
             outlined
             v-model="brand"
             :options="brands"
-            label="Все марки"
+            label="Усі марки"
           />
         </div>
 
@@ -33,33 +33,33 @@
             outlined
             v-model="bodyType"
             :options="bodyTypes"
-            label="Все типы"
+            label="Усі типи"
           />
         </div>
 
             <div class="filter-item">
               <div class="filter-label">
-                Трансмиссия
+                Трансмісія
               </div>
 
               <q-select
                 outlined
                 v-model="transmission"
                 :options="transmissions"
-                label="Все трансмиссии"
+                label="Усі трансмісії"
               />
             </div>
 
         <div class="filter-item">
           <div class="filter-label">
-            Максимальная цена
+            Максимальна ціна
           </div>
 
           <q-input
             outlined
             v-model="maxPrice"
             type="number"
-            label="Цена за день"
+            label="Ціна за день"
             suffix="₴"
           />
         </div>
@@ -68,7 +68,7 @@
 
           <q-btn
             class="search-button"
-            label="Найти"
+            label="Знайти"
             unelevated
             @click="applyFilters"
           />
@@ -76,7 +76,7 @@
           <q-btn
             class="reset-button"
             flat
-            label="Сбросить"
+            label="Очистити"
             @click="resetFilters"
           />
 
@@ -86,10 +86,10 @@
           <div class="cars-section">
 
             <div class="results-count">
-              Найдено автомобилей: {{ totalElements }}
+              Знайдено авто: {{ totalElements }}
             </div>
 
-            <h2>Доступные автомобили</h2>
+            <h2>Доступні авто</h2>
 
             <div class="cars-grid">
 

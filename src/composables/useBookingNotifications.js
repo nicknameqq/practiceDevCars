@@ -43,12 +43,12 @@ export function useBookingNotifications(
         'booking_upcoming',
 
       title:
-        'Предстоящее бронирование',
+        'Майбутнє бронювання',
 
       message:
         `${carName} — ` +
-        `начало аренды ${startDate}. ` +
-        `Окончание: ${endDate}`,
+        `Початок аренди ${startDate}. ` +
+        `Кінець аренди: ${endDate}`,
 
       icon:
         'event',

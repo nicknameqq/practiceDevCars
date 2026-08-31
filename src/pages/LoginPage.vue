@@ -2,7 +2,7 @@
   <q-page class="flex flex-center">
     <q-card style="width: 400px; max-width: 90vw;">
       <q-card-section>
-        <div class="text-h5">Вход</div>
+        <div class="text-h5">Вхід</div>
       </q-card-section>
 
       <q-card-section>
@@ -34,7 +34,7 @@
 
           <q-btn
             type="submit"
-            label="Войти"
+            label="Увійти"
             unelevated
             class="full-width"
             :loading="loading"

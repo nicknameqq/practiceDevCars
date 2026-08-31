@@ -81,7 +81,7 @@ export function useBookingActions({
           'negative',
 
         message:
-          'Не удалось создать бронирование',
+          'Не вдалось створити бронювання',
 
         position:
           'top-right',

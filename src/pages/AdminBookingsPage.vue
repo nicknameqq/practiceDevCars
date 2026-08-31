@@ -11,11 +11,11 @@
         <div>
 
           <h1>
-            Бронирования
+            Бронювання
           </h1>
 
           <p class="subtitle">
-            Управление бронированиями пользователей
+            Перегляд та управління бронюванням
           </p>
 
         </div>
@@ -26,7 +26,7 @@
           <q-btn
             flat
             icon="refresh"
-            label="Обновить"
+            label="Оновити"
             :loading="loading"
             @click="loadAdminBookings"
           />
@@ -71,7 +71,7 @@
         />
 
         <div>
-          Не удалось загрузить бронирования
+          Не вдалося завантажити бронювання
         </div>
 
         <q-btn
@@ -96,7 +96,7 @@
         />
 
         <h2>
-          Бронирований пока нет
+          Бронювання поки відсутні
         </h2>
 
       </div>
@@ -124,19 +124,19 @@
               </th>
 
               <th>
-                Пользователь
+                Користувач
               </th>
 
               <th>
-                Автомобиль
+                Авто
               </th>
 
               <th>
-                Период аренды
+                Період аренди
               </th>
 
               <th>
-                Сумма
+                Сума
               </th>
 
               <th>
@@ -309,7 +309,7 @@
                 >
 
                   <q-tooltip>
-                    Отменить бронирование
+                    Скасувати бронювання
                   </q-tooltip>
 
                 </q-btn>
@@ -374,7 +374,7 @@
           )
         }}
 
-        из
+        з
 
         {{ totalElements }}
 
@@ -580,16 +580,16 @@ function getStatusLabel(status) {
   switch (status) {
 
     case 'PENDING':
-      return 'Ожидает'
+      return 'Очікує'
 
     case 'ACTIVE':
-      return 'Активно'
+      return 'Активне'
 
     case 'COMPLETED':
       return 'Завершено'
 
     case 'CANCELLED':
-      return 'Отменено'
+      return 'Скасовано'
 
     default:
       return status
@@ -610,7 +610,7 @@ function getStatusOptions(
     return [
 
       {
-        label: 'Ожидает',
+        label: 'Очікує',
         value: 'PENDING'
       },
 
@@ -620,7 +620,7 @@ function getStatusOptions(
       },
 
       {
-        label: 'Отменено',
+        label: 'Скасовано',
         value: 'CANCELLED'
       }
 
@@ -646,7 +646,7 @@ function getStatusOptions(
       },
 
       {
-        label: 'Отменено',
+        label: 'Скасовано',
         value: 'CANCELLED'
       }
 
